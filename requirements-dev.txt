@@ -1,0 +1,8 @@
+# Extra pip install -r packages for development environment 
+-r requirements.txt
+setuptools
+pylint
+ipython
+ipykernel
+rope
+

@@ -1,0 +1,12 @@
+# require python version 3.8
+# This requirement file lists pip install -r dependencies
+aiofile
+lark-parser
+pathos
+tqdm
+boto3
+awscli
+git+https://github.com/pestun/strace-parser@c3f0d87#egg=strace-parser
+dataclasses-json
+numba
+pymongo
