@@ -1,10 +1,16 @@
-from typing import List, Union, Tuple, Optional
-import pycoq.kernel
-import asyncio
+'''
+functions to work with coq-serapi
+'''
+
 import re
 import json
 import time
+import asyncio
 import numbers
+
+
+from typing import List, Union, Tuple
+import pycoq.kernel
 
 
 from dataclasses import dataclass
@@ -199,6 +205,9 @@ class CoqSerapi():
         while True:
             line = await self._kernel.readline()
             if line == '':
+                print("empty readline: ", end='')
+                time.sleep(0.1)
+                print("process terminated with proc code", self._kernel._proc.returncode)
                 raise EOFError
 
             self._serapi_response_history.append(line)
@@ -250,7 +259,7 @@ class CoqSerapi():
         resp_ind = await self.wait_for_answer_completed(cmd_tag)
         coqexns = await self.coqexns(cmd_tag)
         if coqexns != []:
-            raise RuntimeError(f'Unexpected error during coq-serapi command Query () Goals'
+            raise RuntimeError(f'Unexpected error during coq-serapi command Query () Goals '
                                f'with CoqExns {coqexns}')
         goals = await self._answer(cmd_tag)
         return goals
@@ -292,7 +301,7 @@ class CoqSerapi():
                 cmd_tag, resp_ind, coqexns = await self.exec_completed(sid)
                 if coqexns:
                     (cmd_tag, resp_ind) = await self.cancel_completed(sids)
-                    return (cmd_tag, resp_ind, coqexns)
+                    return (cmd_tag, resp_ind, coqexns, None)
                 self._executed_sids.append(sid)
 
         return (cmd_tag, resp_ind, [], sids)

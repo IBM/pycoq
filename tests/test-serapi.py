@@ -1,16 +1,16 @@
-import os
-import asyncio
-import io
-import aiofile
+''' test serapi'''
+
+
 import sys
 import argparse
 import concurrent.futures
-import tqdm
-import multiprocessing
 import datetime
 import time
-import json
+import os
 
+import asyncio
+import aiofile
+import tqdm
 
 import pycoq.common
 import pycoq.kernel
@@ -20,9 +20,6 @@ import pycoq.parse
 
 # https://rgxdb.com/r/5FZS9VWD
 # double quote escaping double quote
-
-from typing import Optional
-
 
 
 
@@ -37,13 +34,21 @@ async def printlines(aiter):
 
 
 async def process(source, args):
+    print(f"started {source}")
     async with aiofile.AIOFile(source, 'rb') as inp:
         coq_stmts = pycoq.split.agen_coq_stmts(aiofile.LineReader(inp))
 
         coq_ctxt = pycoq.common.load_context(pycoq.common.context_fname(source), quiet=True)
         ser_args = pycoq.common.serapi_args(coq_ctxt.IQR())
-        ser_args = ser_args + ['--topfile', source]
-        cfg = pycoq.common.serapi_kernel_config(pwd=coq_ctxt.pwd, args=ser_args)
+        ser_args += ['--topfile', source]
+        if args.debug:
+            ser_args += ['--debug']
+        cfg = pycoq.common.serapi_kernel_config(
+            pwd=coq_ctxt.pwd,
+            args=ser_args,
+            opam_switch = args.opam_switch,
+            opam_root = args.opam_root
+        )
 
         errors = []
 
@@ -51,10 +56,11 @@ async def process(source, args):
             logfname = serapi_log_fname(source)
         async with pycoq.serapi.CoqSerapi(cfg, logfname=logfname) as coq:
             async for coq_stmt in coq_stmts:
-                cmd_tag, resp_ind, coqexns, sids = await coq.execute(coq_stmt)
+                cmd_tag, resp_ind, coqexns, sids =  await coq.execute(coq_stmt)
                 errors.extend(coqexns)
 
                 goals = await coq.query_goals_completed()
+
                 for g in goals:
                     try:
                         #parsed = pycoq.parse.parse_goals(g)
@@ -68,25 +74,21 @@ async def process(source, args):
                         sys.exit(-1)
 
                     
-                    
-                    
-                        
-                        
-
         msg = (f"sent {len(coq._sent_history)}, "
                f"exec {len(coq._executed_sids)}")
 
-        if errors == []:
-            return (source, "OK:" + msg)
-        else:
-            return (source, f"ERRORS: {errors} " + msg)
+    print(f"finished {source}")
+    if errors == []:
+        return (source, "OK:" + msg)
+    else:
+        return (source, f"ERRORS: {errors} " + msg)
 
 
 def run_task(source, args):
     return asyncio.run(process(source, args))
 
 def record(flog, source, res):
-    print(f"{source}: ", end='',file=flog)
+    print(f"{source}", end='', file=flog)
     print(f"{res}", file=flog)
 
 
@@ -100,8 +102,14 @@ def main():
     parser.add_argument('--with-context', action='store_true',
                         help='process only source files with '
                         'for which pycoq context files exist')
+    parser.add_argument('--debug', action='store_true',
+                        help='call sertop --debug')
     parser.add_argument('--save-serapi-log', action='store_true',
                         help=f'save detailed serapi logs in source filename + {pycoq.common._DEFAULT_SERAPI_LOGEXT}')
+    parser.add_argument('--opam-switch', type=str, default='pycoq')
+    parser.add_argument('--opam-root', type=str)
+    parser.add_argument('--timeout', type=int, default=None)
+
     args = parser.parse_args()
 
     sources = []
@@ -129,7 +137,10 @@ def main():
         pass
     with concurrent.futures.ProcessPoolExecutor(max_workers=args.workers) as executor:
         futures = [executor.submit(run_task, source, args) for source in sources]
-        for future in tqdm.tqdm(concurrent.futures.as_completed(futures), total=len(sources), miniters=1):
+        for future in tqdm.tqdm(
+                concurrent.futures.as_completed(futures),
+                total=len(sources),
+                miniters=1):
             with open(args.log, 'a') as flog:
                 cdt = datetime.datetime.fromtimestamp(time.time()).isoformat()
                 print(f"{cdt} run {args}",  file=flog)

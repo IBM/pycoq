@@ -1,5 +1,6 @@
 import asyncio
 import dataclasses
+import time
 from typing import Union
 
 from pycoq.common import LocalKernelConfig, RemoteKernelConfig
@@ -7,7 +8,7 @@ from pycoq.common import TIMEOUT_TERMINATE
 
 KernelConfig = Union[LocalKernelConfig, RemoteKernelConfig]
 
-PIPE_BUFFER_LIMIT = 512*1024*1024  # 512 Mb
+PIPE_BUFFER_LIMIT = 2048*1024*1024  # 2048 Mb
 
 async def readline(stream, timeout=None) -> str: 
     """ reads line from stream 
@@ -51,7 +52,7 @@ class LocalKernel():
             
     async def start(self):
         cfg = self.cfg
-        cmd = [cfg.executable] + cfg.args
+        cmd = cfg.command
         env = cfg.env
         cwd = cfg.pwd
         self._proc = await asyncio.create_subprocess_exec(
@@ -66,6 +67,10 @@ class LocalKernel():
         self._reader = self._proc.stdout
         self._reader_err = self._proc.stderr
         self._writer = self._proc.stdin
+        print(f"process with {self._proc.pid} started as")
+        print("cmd: ", cmd)
+        print("cwd ", cwd)
+
 
     async def __aenter__(self):
         """ starts local kernel

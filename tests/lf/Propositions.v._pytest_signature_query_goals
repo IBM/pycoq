@@ -1,0 +1,40 @@
+step 0
+input: Theorem th1: forall A B: Prop, A -> A -> (A->B) -> B.
+
+query: (ObjList((CoqGoal((goals(((info((evar(Ser_Evar 1))(name())))(ty(Prod((binder_name(Name(Id A)))(binder_relevance Relevant))(Sort Prop)(Prod((binder_name(Name(Id B)))(binder_relevance Relevant))(Sort Prop)(Prod((binder_name Anonymous)(binder_relevance Relevant))(Rel 2)(Prod((binder_name Anonymous)(binder_relevance Relevant))(Rel 3)(Prod((binder_name Anonymous)(binder_relevance Relevant))(Prod((binder_name Anonymous)(binder_relevance Relevant))(Rel 4)(Rel 4))(Rel 4)))))))(hyp()))))(stack())(shelf())(given_up())(bullet())))))
+parsed: SerapiGoals(goals=[RGoal(info='((evar(Ser_Evar 1))(name()))', target='(Prod((binder_name(Name(Id A)))(binder_relevance Relevant))(Sort Prop)(Prod((binder_name(Name(Id B)))(binder_relevance Relevant))(Sort Prop)(Prod((binder_name Anonymous)(binder_relevance Relevant))(Rel 2)(Prod((binder_name Anonymous)(binder_relevance Relevant))(Rel 3)(Prod((binder_name Anonymous)(binder_relevance Relevant))(Prod((binder_name Anonymous)(binder_relevance Relevant))(Rel 4)(Rel 4))(Rel 4))))))', hyp=[])], stack=[], shelf=[], given_up=[], bullet='()')
+step 1
+input: Proof.
+
+query: (ObjList((CoqGoal((goals(((info((evar(Ser_Evar 1))(name())))(ty(Prod((binder_name(Name(Id A)))(binder_relevance Relevant))(Sort Prop)(Prod((binder_name(Name(Id B)))(binder_relevance Relevant))(Sort Prop)(Prod((binder_name Anonymous)(binder_relevance Relevant))(Rel 2)(Prod((binder_name Anonymous)(binder_relevance Relevant))(Rel 3)(Prod((binder_name Anonymous)(binder_relevance Relevant))(Prod((binder_name Anonymous)(binder_relevance Relevant))(Rel 4)(Rel 4))(Rel 4)))))))(hyp()))))(stack())(shelf())(given_up())(bullet())))))
+parsed: SerapiGoals(goals=[RGoal(info='((evar(Ser_Evar 1))(name()))', target='(Prod((binder_name(Name(Id A)))(binder_relevance Relevant))(Sort Prop)(Prod((binder_name(Name(Id B)))(binder_relevance Relevant))(Sort Prop)(Prod((binder_name Anonymous)(binder_relevance Relevant))(Rel 2)(Prod((binder_name Anonymous)(binder_relevance Relevant))(Rel 3)(Prod((binder_name Anonymous)(binder_relevance Relevant))(Prod((binder_name Anonymous)(binder_relevance Relevant))(Rel 4)(Rel 4))(Rel 4))))))', hyp=[])], stack=[], shelf=[], given_up=[], bullet='()')
+step 2
+input:   intros A B.
+
+query: (ObjList((CoqGoal((goals(((info((evar(Ser_Evar 3))(name())))(ty(Prod((binder_name Anonymous)(binder_relevance Relevant))(Var(Id A))(Prod((binder_name Anonymous)(binder_relevance Relevant))(Var(Id A))(Prod((binder_name Anonymous)(binder_relevance Relevant))(Prod((binder_name Anonymous)(binder_relevance Relevant))(Var(Id A))(Var(Id B)))(Var(Id B))))))(hyp((((Id A)(Id B))()(Sort Prop)))))))(stack())(shelf())(given_up())(bullet())))))
+parsed: SerapiGoals(goals=[RGoal(info='((evar(Ser_Evar 3))(name()))', target='(Prod((binder_name Anonymous)(binder_relevance Relevant))(Var(Id A))(Prod((binder_name Anonymous)(binder_relevance Relevant))(Var(Id A))(Prod((binder_name Anonymous)(binder_relevance Relevant))(Prod((binder_name Anonymous)(binder_relevance Relevant))(Var(Id A))(Var(Id B)))(Var(Id B)))))', hyp=[Hyp(ids=['(Id A)', '(Id B)'], define=None, typ='(Sort Prop)')])], stack=[], shelf=[], given_up=[], bullet='()')
+step 3
+input:   intros a0 a1.
+
+query: (ObjList((CoqGoal((goals(((info((evar(Ser_Evar 5))(name())))(ty(Prod((binder_name Anonymous)(binder_relevance Relevant))(Prod((binder_name Anonymous)(binder_relevance Relevant))(Var(Id A))(Var(Id B)))(Var(Id B))))(hyp((((Id a0)(Id a1))()(Var(Id A)))(((Id A)(Id B))()(Sort Prop)))))))(stack())(shelf())(given_up())(bullet())))))
+parsed: SerapiGoals(goals=[RGoal(info='((evar(Ser_Evar 5))(name()))', target='(Prod((binder_name Anonymous)(binder_relevance Relevant))(Prod((binder_name Anonymous)(binder_relevance Relevant))(Var(Id A))(Var(Id B)))(Var(Id B)))', hyp=[Hyp(ids=['(Id a0)', '(Id a1)'], define=None, typ='(Var(Id A))'), Hyp(ids=['(Id A)', '(Id B)'], define=None, typ='(Sort Prop)')])], stack=[], shelf=[], given_up=[], bullet='()')
+step 4
+input:   intros ab.
+
+query: (ObjList((CoqGoal((goals(((info((evar(Ser_Evar 6))(name())))(ty(Var(Id B)))(hyp((((Id ab))()(Prod((binder_name Anonymous)(binder_relevance Relevant))(Var(Id A))(Var(Id B))))(((Id a0)(Id a1))()(Var(Id A)))(((Id A)(Id B))()(Sort Prop)))))))(stack())(shelf())(given_up())(bullet())))))
+parsed: SerapiGoals(goals=[RGoal(info='((evar(Ser_Evar 6))(name()))', target='(Var(Id B))', hyp=[Hyp(ids=['(Id ab)'], define=None, typ='(Prod((binder_name Anonymous)(binder_relevance Relevant))(Var(Id A))(Var(Id B)))'), Hyp(ids=['(Id a0)', '(Id a1)'], define=None, typ='(Var(Id A))'), Hyp(ids=['(Id A)', '(Id B)'], define=None, typ='(Sort Prop)')])], stack=[], shelf=[], given_up=[], bullet='()')
+step 5
+input:   apply ab.
+
+query: (ObjList((CoqGoal((goals(((info((evar(Ser_Evar 7))(name())))(ty(Var(Id A)))(hyp((((Id ab))()(Prod((binder_name Anonymous)(binder_relevance Relevant))(Var(Id A))(Var(Id B))))(((Id a0)(Id a1))()(Var(Id A)))(((Id A)(Id B))()(Sort Prop)))))))(stack())(shelf())(given_up())(bullet())))))
+parsed: SerapiGoals(goals=[RGoal(info='((evar(Ser_Evar 7))(name()))', target='(Var(Id A))', hyp=[Hyp(ids=['(Id ab)'], define=None, typ='(Prod((binder_name Anonymous)(binder_relevance Relevant))(Var(Id A))(Var(Id B)))'), Hyp(ids=['(Id a0)', '(Id a1)'], define=None, typ='(Var(Id A))'), Hyp(ids=['(Id A)', '(Id B)'], define=None, typ='(Sort Prop)')])], stack=[], shelf=[], given_up=[], bullet='()')
+step 6
+input:   exact a1.
+
+query: (ObjList((CoqGoal((goals())(stack())(shelf())(given_up())(bullet())))))
+parsed: SerapiGoals(goals=[], stack=[], shelf=[], given_up=[], bullet='()')
+step 7
+input: Qed.
+
+query: (ObjList())
+parsed: None

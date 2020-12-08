@@ -1,8 +1,0 @@
-..."str.  ing""string"""""[NOT_STRING ]""[ NOT_STRING 2].
-
-AA  . 	B   . C .
-
-D
-.
-(*  F ... .. . G comment *) 
-add

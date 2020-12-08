@@ -11,8 +11,9 @@ def debug(*args):
     
 
     
-async def evaluate_agent_on_stream(cfg: pycoq.common.LocalKernelConfig, agent, props: Iterable[str], agent_parameters = {}, section_name = "section0000"):
-    async with pycoq.serapi.CoqSerapi(cfg, logfname="logtemp") as coq:
+async def evaluate_agent_on_stream(cfg: pycoq.common.LocalKernelConfig, agent, props: Iterable[str],
+                                   agent_parameters = {}, section_name = "section0000", logfname=None):
+    async with pycoq.serapi.CoqSerapi(cfg, logfname=logfname) as coq:
         for prop in props:
             result = await coq.execute(f"Section {section_name}.")
             last_sids = result[3]
@@ -59,7 +60,7 @@ async def evaluate_agent_in_session(coq: pycoq.serapi.CoqSerapi, agent, prop: st
                 
                 
     
-async def evaluate_agent(cfg: pycoq.common.LocalKernelConfig, agent, prop: str, agent_parameters = {}):
+async def evaluate_agent(cfg: pycoq.common.LocalKernelConfig, agent, prop: str, agent_parameters = {}, logfname=None):
     """
     input: 
     prop: proposition statement in coq - gallina grammar on a single line"
@@ -75,7 +76,7 @@ async def evaluate_agent(cfg: pycoq.common.LocalKernelConfig, agent, prop: str, 
     #  (-2, coq_error_message) agent was not called because coq did not parse the theorem statement
     """
     
-    async with pycoq.serapi.CoqSerapi(cfg, logfname="logtemp") as coq:
+    async with pycoq.serapi.CoqSerapi(cfg, logfname=logfname) as coq:
         result = await coq.execute(prop)
         if len(result[2]) > 0:
             debug("evaluate_agent: Error in proposition")

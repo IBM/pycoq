@@ -10,3 +10,5 @@ git+https://github.com/pestun/strace-parser@c3f0d87#egg=strace-parser
 dataclasses-json
 numba
 pymongo
+pytest
+pytest-benchmark

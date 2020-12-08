@@ -13,29 +13,21 @@
  
 import io
 import re
-import aiofile 
-import asyncio
-import argparse
 import os
 import sys
 import time
+import asyncio
+import argparse
+
+from typing import Iterable
+
+import aiofile 
 
 
 import pycoq.common
 import pycoq.kernel
 
 
-async def coq_stmts(inp: io.BufferedReader, sep='\n'):
-    prefix = ""
-    while True:
-        line = inp.readline()
-        if not line:
-            break
-        chunks = line.split(sep=sep)
-        chunks[0] = prefix + chunks[0]
-        prefix = chunks[-1]
-        for chunk in chunks[:-1]:
-            yield chunk + sep
 
 DOT = r'.'
 QUOTE = r'"'
@@ -52,12 +44,18 @@ SEPARATORS = (
 separators = re.compile(SEPARATORS)
 
 def after_dot(s, pos):
+    '''
+    [revised]
+    '''
     return (pos > 0 and s[pos-1] == DOT)
 
 
-def string_coq_stmts_pos(s, comment_level, in_string):
+def string_coq_stmts_pos(line, comment_level, in_string):
+    '''
+    [revised]
+    '''
     res = []
-    for m in separators.finditer(s):
+    for m in separators.finditer(line):
         sep = m.lastgroup
         pos = m.end()
         if sep == 'quote':
@@ -78,10 +76,57 @@ def string_coq_stmts_pos(s, comment_level, in_string):
         elif (sep == 'dotwhite'
               and not in_string
               and comment_level == 0):
-            if not after_dot(s, m.start()):
+            if not after_dot(line, m.start()):
                 res.append(pos)
     return (res, comment_level, in_string)
 
+
+
+def coq_stmts_of_lines(lines: Iterable[str]) -> Iterable[str]:
+    '''
+    [revised]
+    converts iterable of lines to iterable of coq stmt 
+    '''
+    comment_level = 0
+    in_string = False
+    prefix = ""
+
+    for line in lines:
+        positions, comment_level, in_string = string_coq_stmts_pos(
+            line, comment_level, in_string)
+        start = 0
+        for pos in positions:
+            stmt = prefix + line[start:pos]
+            prefix = ''
+            start = pos
+            yield stmt
+        prefix = prefix + line[start:]
+
+
+def coq_stmts_of_context(coq_ctxt: pycoq.common.CoqContext) -> Iterable[str]:
+    '''
+    [revised]
+    returns generator of coq statements from a context
+    '''
+    source_filename = os.path.join(coq_ctxt.pwd, coq_ctxt.target)
+
+    with open(source_filename, 'r') as fsource:
+        for stmt in pycoq.split.coq_stmts_of_lines(fsource.readlines()):
+            yield stmt
+
+
+async def coq_stmts(inp: io.BufferedReader, sep='\n'):
+    prefix = ""
+    while True:
+        line = inp.readline()
+        if not line:
+            break
+        chunks = line.split(sep=sep)
+        chunks[0] = prefix + chunks[0]
+        prefix = chunks[-1]
+        for chunk in chunks[:-1]:
+            yield chunk + sep
+            
 
 def remove_comment(s: str):
     res = []
@@ -121,7 +166,7 @@ def remove_comment(s: str):
     return " ".join([x.strip() for x in res]).strip()
 
     
-async def agen_coq_stmts(fin: asyncio.StreamReader , comment_level=0,
+async def agen_coq_stmts(fin: asyncio.StreamReader, comment_level=0,
                         in_string=False, prefix=''):
     """ 
     takes binary stream as input
@@ -138,9 +183,11 @@ async def agen_coq_stmts(fin: asyncio.StreamReader , comment_level=0,
         for pos in positions:
             stmt = prefix + line[start:pos]
             prefix = ''
-            start = pos 
+            start = pos
             yield stmt
         prefix = prefix + line[start:]
+
+
 
 
 # begin compare with sercomp 

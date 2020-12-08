@@ -1,0 +1,65 @@
+'''
+sample test of pycoq
+'''
+import os
+import asyncio
+import logging
+
+import pycoq.opam
+import pycoq.config
+import pycoq.log
+import pycoq.query_goals
+import pycoq.query_goals_legacy
+
+
+def format_query_goals(steps) -> str:
+    ''' formats output of pycoq.opam.opam_coq_serapi_query_goals '''
+    ans = ""
+    for i, step in enumerate(steps):
+        stmt, _serapi_goals, serapi_goals = step
+        ans += f"step {i}\n"
+        ans += f"input: {stmt}\n"
+        ans += f"query: {_serapi_goals}\n"
+        ans += f"parsed: {serapi_goals}\n"
+    return ans
+
+
+def check_ans(ans: str, project: str, fname: str, write=False):
+    ''' checks results against saved '''
+    dirname = os.path.join(project,os.path.dirname(fname))
+    if write:
+        os.makedirs(dirname, exist_ok=True)
+        with open(os.path.join(dirname,os.path.basename(fname)), 'w') as stream:
+            stream.write(ans)
+    with open(os.path.join(dirname,os.path.basename(fname)), 'r') as stream:
+        assert ans == stream.read()
+        
+
+def aux_query_goals(coq_package: str, coq_package_pin=None, write=False):
+    ''' tests coq package againss cparser + query_goals '''
+    logging.info(f"ENTERED aux_query_goals")
+    for filename in pycoq.opam.opam_strace_build(coq_package, coq_package_pin):
+        logging.info(f"PROCESSING {filename}")
+        ctxt = pycoq.common.load_context(filename)
+        steps = asyncio.run(pycoq.opam.opam_coq_serapi_query_goals(ctxt,
+                                                                   compare_with_legacy=True))
+        ans = format_query_goals(steps)
+        check_ans(ans, coq_package, ctxt.target + '._pytest_signature_query_goals',
+                  write=write)
+
+
+def aux_lf_query_goals(write=False):
+    aux_query_goals("lf", "git+https://github.com/pestun/lf", write=write)
+
+
+def aux_bignums_query_goals(write=False):
+    aux_query_goals("coq-bignums",  write=write)
+
+
+def test_serapi_installed():
+    ''' tests if coq-serapi installation is OK, installs if missing '''
+    assert pycoq.opam.opam_install_serapi()
+
+
+def test_lf_query_goals(benchmark):
+    benchmark.pedantic(aux_lf_query_goals)

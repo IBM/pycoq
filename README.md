@@ -1,72 +1,80 @@
-# pycoq: python library to interface with coq theorem prover
 
-## Quick Install on Ubuntu 18.04.3 
+The pip distribution package pycoq provides two python packages:
 
-Clone the repo and execute `pycoq_install.sh` from it
+- serlib
+
+- pycoq
+
+
+## pycoq
+
+pycoq is a python library that provides API to coq-serapi 
+
+## serlib 
+
+serlib is a python library that exposes C++ s-expression parser
+
+See https://bagnalla.github.io/sexp-trees/ for s-expression visualisation. 
+
+
+## Install on Linux
+
+### Install python=3.8. 
+If conda https://docs.conda.io/en/latest/miniconda.html#miniconda is installed, run
 ```
-cd pycoq
-./install-pycoq.sh
+conda create -n pycoq python=3.8
+conda activate pycoq
 ```
-The script installs linux developer tools, opam package manager + coq, miniconda with conda env pycoq and python 3.8, and pycoq package in python 3.8 venv environment. Consult the instructions below for individual stages. 
 
-## Stages of install on Linux / Ubuntu 18.04.3 
+### Install opam=2.0.5
+On Ubuntu 20.04 run 
+```
+apt-get install opam
+```
+See https://opam.ocaml.org/doc/Install.html for other systems
 
-To speed up build on multicore systems set the make flag in the environment 
 
-`export MAKEFLAGS=-j$(nproc)`
+### Install pycoq
+To install pycoq in development mode (editable version in venv environment) under the source
+directory run
 
-- Clone the `pycoq` repository
+```
+make setup-pycoq-dev
+```
 
-`git clone <reponame>`
-    
-`cd pycoq`
+### Activate pycoq venv
+```
+. venv/bin/activate
+```
 
-- Install common build tools and opam package manager on ubuntu if missing
 
-`make setup-tools-ubuntu`
-    
-- Install miniconda to `CONDA_PREFIX` specified in `Makefile` if missing
+### Run tests
+```
+cd tests
+pytest
+```
 
-`make setup-conda`
 
-(consult documentation for `conda init` for permanent hook shell activation)
+### Deactivate
+To quit from the venv 
+```
+deactivate
+```
 
-- Create conda environment pycoq with python 3.8 if missing
+### Uninstall 
+In the default configuration pycoq uses directory `$HOME/.local/share/pycoq` to store opam repository and other files. To remove it run
+```
+rm -fr $HOME/.local/share/pycoq
+```
 
-`make setup-python-3.8`
 
-- To setup pycoq in venv in editable mode: 
 
-`make setup-pycoq-venv`
 
-- To activate / deactivate python pycoq venv:
 
-`source venv/bin/activate` / `deactivate`
 
-If pycoq is succesfully installed and activated, the pycoq tool
-`pycoq-trace` should be available in the path and executable 
 
-- Install coq into opam environment pycoq if missing
 
-`make setup-coq`
 
-- To activate opam environment pycoq 
 
-`opam switch pycoq`
 
-`eval $(opam env)`
-
-(consult documentation of `opam init` for hook shell activation or shell config)
-
-- To download and initialise test repos of coq libraries  CompCert and MathComp
-
-`make test-setup`
-
-- To compile tests with factory coq and record the context of coqc calls
-
-`make test-trace-CompCert`
-
-`make test-trace-MathComp`
-
-`make test-serapi`
 

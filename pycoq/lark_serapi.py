@@ -71,7 +71,7 @@ if __name__ == "__main__":
     string_json = '{"key": ["item0", "item1", 3.14]}'    
     print(json_parser.parse(string_json).pretty())
 
-    string_serapi = "(Feedback((doc_id 0)(span_id 0)(route 0)(contents(FileLoaded Coq.Init.Prelude coq-serapi/lib/coq/theories/Init/Prelude.vo))))"
+    string_serapi = "(Feedback((doc_id 0)(span_id 0)(route 0)(contents(FileLoaded Coq.Init.Prelude /home/pestun/.opam/coq-serapi/lib/coq/theories/Init/Prelude.vo))))"
     print(sexp_parser_mach.parse(string_serapi).pretty())
     
 
