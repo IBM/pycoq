@@ -1,0 +1,31 @@
+opam-version: "2.0"
+maintainer: "vasily.pestun@gmail.com"
+
+homepage: "https://github.com/pestun/lf"
+dev-repo: "git+https://github.com/pestun/lf.git"
+bug-reports: "https://github.com/pestun/lf/issues"
+license: "LGPL-2.1"
+
+synopsis: "Software foundation exercises"
+description: """
+solutions to software foundations exercises 
+"""
+
+version: "dev"
+
+build: [make "-j%{jobs}%"]
+install: [make "install"]
+
+depends: [
+  "ocaml"
+  "coq" {(>= "8.11" & < "8.13~") | (= "dev")}
+]
+
+tags: [
+  "category:Miscellaneous/Coq Extensions"
+  "keyword:integer numbers"
+  "keyword:arithmetic"
+]
+authors: [
+  "Benjamin C. Pierce"
+]

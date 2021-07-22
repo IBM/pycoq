@@ -49,7 +49,8 @@ def aux_query_goals(coq_package: str, coq_package_pin=None, write=False):
 
 
 def aux_lf_query_goals(write=False):
-    aux_query_goals("lf", "git+ssh://github.com/pestun/lf.git", write=write)
+    #aux_query_goals("lf", "git+ssh://github.com/pestun/lf.git", write=write)
+    aux_query_goals("lf", "file://lf", write=write)
 
 
 def aux_bignums_query_goals(write=False):
