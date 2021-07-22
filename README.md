@@ -19,19 +19,21 @@ See https://bagnalla.github.io/sexp-trees/ for s-expression visualisation.
 
 ## Install on Linux
 
-### Install python=3.8. 
-If conda https://docs.conda.io/en/latest/miniconda.html#miniconda is installed, run
+We provide quick instructions for installing pycoq on Linux. Other platforms are not currently supported. 
+
+### Provide python3
+We assume that python3 is available in the shell environment (the current release of pycoq is tested on python 3.8). For example, you can provide python3 using conda as follows (assuming  https://docs.conda.io/en/latest/miniconda.html#miniconda is installed)
 ```
 conda create -n pycoq python=3.8
 conda activate pycoq
 ```
 
-### Install opam=2.0.5
-On Ubuntu 20.04 run 
+### Provide opam of version >= 2.0.5
+We assume that opam of version >= 2.0.5 is available in the shell environment. On Ubuntu 20.04 you can install opam with
 ```
 apt-get install opam
 ```
-See https://opam.ocaml.org/doc/Install.html for other systems
+See opam install instructions https://opam.ocaml.org/doc/Install.html for other distros.
 
 
 ### Install pycoq
