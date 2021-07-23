@@ -12,6 +12,13 @@ import pycoq.query_goals
 import pycoq.query_goals_legacy
 
 
+import pkg_resources
+
+def with_prefix(s: str) -> str:
+    ''' adds package path as prefix '''
+    return os.path.join(pkg_resources.resource_filename('pycoq', 'tests'), s)
+
+
 def format_query_goals(steps) -> str:
     ''' formats output of pycoq.opam.opam_coq_serapi_query_goals '''
     ans = ""
@@ -26,7 +33,8 @@ def format_query_goals(steps) -> str:
 
 def check_ans(ans: str, project: str, fname: str, write=False):
     ''' checks results against saved '''
-    dirname = os.path.join(project,os.path.dirname(fname))
+    dirname = os.path.join(with_prefix(project),os.path.dirname(fname))
+    print(f"dirname is {dirname}")
     if write:
         os.makedirs(dirname, exist_ok=True)
         with open(os.path.join(dirname,os.path.basename(fname)), 'w') as stream:
@@ -49,8 +57,7 @@ def aux_query_goals(coq_package: str, coq_package_pin=None, write=False):
 
 
 def aux_lf_query_goals(write=False):
-    #aux_query_goals("lf", "git+ssh://github.com/pestun/lf.git", write=write)
-    aux_query_goals("lf", "file://lf", write=write)
+    aux_query_goals("lf", f"file://{with_prefix('lf')}", write=write)
 
 
 def aux_bignums_query_goals(write=False):

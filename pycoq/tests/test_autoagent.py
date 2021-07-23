@@ -5,6 +5,11 @@ import pycoq.opam
 import pycoq.common
 import pycoq.agent
 
+import pkg_resources
+
+def with_prefix(s: str) -> str:
+    ''' adds package path as prefix '''
+    return os.path.join(pkg_resources.resource_filename('pycoq', 'tests'), s)
 
 def test_serapi_installed():
     ''' tests if coq-serapi installation is OK, installs if missing '''
@@ -20,9 +25,10 @@ def test_autoagent3():
             cfg, pycoq.agent.auto_agent,
             "Theorem th_4_2_9: forall A B C D: Prop, A->(A->B)->(B->C)->(C->D)->D.",
             agent_parameters={'auto_limit':3},
-            logfname = 'autoagent/agent3.log'))
+            logfname = with_prefix('autoagent/agent3.log')))
                       
-
+    print("########################## res is ", res)
+    print(with_prefix('autoagent/agent3.log'))
     assert res == -1 # -1 stands for fail to proof 
 
 
@@ -34,7 +40,7 @@ def test_autoagent10():
     res = asyncio.run(pycoq.agent.evaluate_agent(cfg, pycoq.agent.auto_agent,
                      "Theorem th_4_2_9: forall A B C D: Prop, A->(A->B)->(B->C)->(C->D)->D.", 
                                                  agent_parameters={'auto_limit':5},
-                      logfname='autoagent/agent10.log'))
+                      logfname=with_prefix('autoagent/agent10.log')))
 
     assert res == 4  # correct depth of proof is 4
     
@@ -48,7 +54,7 @@ def test_autoagent_error_0():
             cfg, pycoq.agent.auto_agent,
             "Theorem th_4_2_9: forall A B C D: Prop, A->(A->B)->(B->C)->(C->D)->F.", 
                      agent_parameters={'auto_limit':10},
-            logfname='autoagent/agent0.log'))
+            logfname=with_prefix('autoagent/agent0.log')))
             
     assert res == -2 # -2 stands for the parsing error
 
@@ -65,6 +71,6 @@ def test_autoagent_error_1():
             cfg, pycoq.agent.auto_agent,
             input_line,
                      agent_parameters={'auto_limit':10},
-        logfname='autoagent/agent1.log'))
+            logfname=with_prefix('autoagent/agent1.log')))
             
     assert res == -2 # -2 stands for the parsing error

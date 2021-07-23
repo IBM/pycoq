@@ -10,6 +10,14 @@ import pycoq.log
 import pytest
 import logging
 
+import os
+
+
+import pkg_resources
+
+def with_prefix(s: str) -> str:
+    ''' adds package path as prefix '''
+    return os.path.join(pkg_resources.resource_filename('pycoq', 'tests'), s)
 
 
 def test_hash_bytestring0():
@@ -128,20 +136,20 @@ def test_serlib_children():
 
 
 def aux_parse_bytestring(name: str, write=False):
-    s = open(f"serlib/{name}.in").read().strip().encode()
+    s = open(with_prefix(f"serlib/{name}.in")).read().strip().encode()
     p = serlib.parser.SExpParser()
     res = numpy.ndarray.tolist(p.parse_bytestring(s))
     if write:
-        json.dump(res, open(f"serlib/{name}.out", 'w'))
+        json.dump(res, open(with_prefix(f"serlib/{name}.out"), 'w'))
     else:
-        assert res == json.load(open(f"serlib/{name}.out"))
+        assert res == json.load(open(with_prefix(f"serlib/{name}.out")))
 
 def test_parse_bytestring():
     aux_parse_bytestring("input0")
 
 
 def test_parse_inverse2():
-    s = open(f"serlib/input2.in").read()
+    s = open(with_prefix(f"serlib/input2.in")).read()
     p = serlib.parser.SExpParser()
     r = p.parse_string(s)
     sprime = p.to_sexp(r)

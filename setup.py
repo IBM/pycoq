@@ -44,9 +44,17 @@ setuptools.setup(
     url='https://github.com/pestun/pycoq',
     python_requires='>=3.8',
     install_requires=['lark-parser',
+                      'pylint',
+                      'pathos',
+                      'ipython',
+                      'ipykernel',
+                      'rope',
                       'pathos',
                       'tqdm',
                       'aiofile',
+                      'pytest',
+                      'pytest-benchmark',
+                      'strace-parser @ git+https://github.com/pestun/strace-parser.git@c3f0d87', 
                       'dataclasses-json'],
     entry_points={'console_scripts': ['pycoq-trace=pycoq.pycoq_trace:main']},
     project_urls={
@@ -54,7 +62,6 @@ setuptools.setup(
     },
     platforms = ["Linux"],
     classifiers=[_f for _f in CLASSIFIERS.split('\n') if _f],
-    dependency_links=['git+https://github.com/pestun/strace-parser@c3f0d87#egg=strace-parser']
     )
 
 

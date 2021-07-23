@@ -1,3 +1,6 @@
+import pkg_resources
+import os
+
 import pycoq.opam
 import pycoq.query_goals
 import pycoq.query_goals_legacy
@@ -6,17 +9,26 @@ import json
 import pycoq.log
 import logging
 
+
+
+def with_prefix(s: str) -> str:
+    ''' adds package path as prefix '''
+    return os.path.join(pkg_resources.resource_filename('pycoq', 'tests'), s)
+
+
 def aux_query_goals_legacy(name: str, write=False):
     '''
     tests pycoq.query_goals.parse_serapi_goals(s: str)
     '''
-    s = open(f"query_goals/{name}.in").read().strip()
-    res = pycoq.query_goals_legacy.parse_serapi_goals(s).to_json()
+    with open(with_prefix(f"query_goals/{name}.in")) as f:
+        s = f.read().strip()
+        res = pycoq.query_goals_legacy.parse_serapi_goals(s).to_json()
     
     if write:
-        open(f"query_goals/{name}_str.out", 'w').write(res)
+        with open(with_prefix(f"query_goals/{name}_str.out"), 'w') as f:
+            f.write(res)
     else:
-        assert json.loads(res) == json.load(open(f"query_goals/{name}_str.out"))
+        assert json.loads(res) == json.load(open(with_prefix(f"query_goals/{name}_str.out")))
 
 def aux_query_goals(name: str, output, write=False):
     '''
@@ -24,7 +36,7 @@ def aux_query_goals(name: str, output, write=False):
     '''
     extension = output.__name__
 
-    input_s = open(f"query_goals/{name}.in").read().strip()
+    input_s = open(with_prefix(f"query_goals/{name}.in")).read().strip()
     p = serlib.parser.SExpParser()
 
     post_fix = p.parse_string(input_s)
@@ -33,9 +45,9 @@ def aux_query_goals(name: str, output, write=False):
     res = pycoq.query_goals.parse_serapi_goals(p, post_fix, ann, output).to_json()
     
     if write:
-        open(f"query_goals/{name}_{extension}.out", 'w').write(res)
+        open(with_prefix(f"query_goals/{name}_{extension}.out"), 'w').write(res)
     else:
-        assert json.loads(res) == json.load(open(f"query_goals/{name}_{extension}.out"))
+        assert json.loads(res) == json.load(open(with_prefix(f"query_goals/{name}_{extension}.out")))
 
 
 def test_serapi_installed():
