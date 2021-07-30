@@ -39,25 +39,25 @@ def hash_bytestring(bytestring: bytes) -> int:
     ''' interface to serlib.cparser.hash_string '''
     return serlib.cparser.hash_string(bytestring)
 
-
-def list_of_string(input_s: str, parser=None) -> List[str]:
-    ''' from s-expression string "(expr_1 expr_2 ... expr_k)"
-    returns a list of strings ["expr_1", "expr_2", ..., "expr_k"]
-    '''
+# TODO: REMOVE
+# def list_of_string(input_s: str, parser=None) -> List[str]:
+#     ''' from s-expression string "(expr_1 expr_2 ... expr_k)"
+#     returns a list of strings ["expr_1", "expr_2", ..., "expr_k"]
+#     '''
     
-    if parser is None:
-        p = SExpParser()
-    input_b = input_s.encode()
-    res, loc = p.parse_bytestring(input_b), p.last_location()
-    n_args = -res[-1]
-    if not n_args >= 0:
-        raise ValueError("the input s-exprression {input_s} is not an s-expr list (may be an atom?)")
-    else:
-        args = []
-        for i in range(n_args):
-            _, loc = p.parse_bytestring(input_b, [i]), p.last_location()
-            args.append(input_b[loc].decode())
-        return args
+#     if parser is None:
+#         p = SExpParser()
+#     input_b = input_s.encode()
+#     res, loc = p.postfix_of_bytestring(input_b), p.last_location()
+#     n_args = -res[-1]
+#     if not n_args >= 0:
+#         raise ValueError("the input s-exprression {input_s} is not an s-expr list (may be an atom?)")
+#     else:
+#         args = []
+#         for i in range(n_args):
+#             _, loc = p.postfix_of_bytestring(input_b, [i]), p.last_location()
+#             args.append(input_b[loc].decode())
+#         return args
 
 
 class SExpParser:
@@ -77,11 +77,21 @@ class SExpParser:
         self.dict = {}
         self.inv_dict = [b'']
     
-    def parse_string(self, string, address=[]):
-        return self.parse_bytestring(string.encode('utf8'), address)
+    def postfix_of_sexp(self, string, address=None):
+        """
+        return a postfix representation in np.array[int] of the input string
+        containing the subtree s-expression at the address
+        """
+        return self.postfix_of_bytestring(string.encode('utf8'), address)
 
-    # TODO: name this function postfix_of_sexp
-    def parse_bytestring(self, bytestring, address=[]):
+    def postfix_of_bytestring(self, bytestring, address=None):
+        """
+        return a postfix representation in np.array[int] of the input s-expression bytestring 
+        at the tree address address
+        //former parse_bytestring
+        """
+        if address is None:
+            address = []
         np_address = np.array(address, dtype=np.intc)
         
         self._start_pos, self._end_pos, post_fix, np_add_dict = serlib.cparser.parse(
@@ -98,7 +108,7 @@ class SExpParser:
         return post_fix
 
     def parse_bytestring_new(self, bytestring, address=[]):
-        postfix = self.parse_bytestring(bytestring, [])
+        postfix = self.postfix_of_bytestring(bytestring, [])
         ann = serlib.cparser.annotate(postfix)
         start, end = serlib.cparser.subtree(postfix, ann, np.array(address, dtype=np.intc))
         return postfix[start:end]
@@ -152,10 +162,10 @@ class SExpParser:
 
     
     
-def check_inverse(parser, bytestring):
-    encoding = parser.parse_bytestring(bytestring)
+def check_inverse(parser: SExpParser, bytestring: bytes) -> bool:
+    encoding = parser.postfix_of_bytestring(bytestring)
     decoding = parser.to_sexp(encoding)
-    reencoding = parser.parse_bytestring(decoding)
+    reencoding = parser.postfix_of_bytestring(decoding)
     return (encoding == reencoding).all()
 
 

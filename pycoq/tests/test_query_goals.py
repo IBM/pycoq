@@ -39,7 +39,7 @@ def aux_query_goals(name: str, output, write=False):
     input_s = open(with_prefix(f"query_goals/{name}.in")).read().strip()
     p = serlib.parser.SExpParser()
 
-    post_fix = p.parse_string(input_s)
+    post_fix = p.postfix_of_sexp(input_s)
     ann = serlib.cparser.annotate(post_fix)
 
     res = pycoq.query_goals.parse_serapi_goals(p, post_fix, ann, output).to_json()

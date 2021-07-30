@@ -54,7 +54,7 @@ setuptools.setup(
                       'aiofile',
                       'pytest',
                       'pytest-benchmark',
-                      'strace-parser @ git+https://github.com/pestun/strace-parser.git@c3f0d87', 
+                      'strace-parser @ git+https://github.com/pestun/strace-parser.git@c3f0d87',
                       'dataclasses-json'],
     entry_points={'console_scripts': ['pycoq-trace=pycoq.pycoq_trace:main']},
     project_urls={

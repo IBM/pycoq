@@ -9,7 +9,7 @@ import pycoq.opam
 import pycoq.config
 import pycoq.log
 import pycoq.query_goals
-import pycoq.query_goals_legacy
+# import pycoq.query_goals_legacy
 
 
 import pkg_resources
@@ -49,8 +49,8 @@ def aux_query_goals(coq_package: str, coq_package_pin=None, write=False):
     for filename in pycoq.opam.opam_strace_build(coq_package, coq_package_pin):
         logging.info(f"PROCESSING {filename}")
         ctxt = pycoq.common.load_context(filename)
-        steps = asyncio.run(pycoq.opam.opam_coq_serapi_query_goals(ctxt,
-                                                                   compare_with_legacy=True))
+        steps = asyncio.run(pycoq.opam.opam_coq_serapi_query_goals(ctxt))
+
         ans = format_query_goals(steps)
         check_ans(ans, coq_package, ctxt.target + '._pytest_signature_query_goals',
                   write=write)

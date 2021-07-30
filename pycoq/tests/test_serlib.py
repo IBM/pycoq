@@ -3,17 +3,19 @@ sample test of pycoq.serlib
 '''
 
 
-import serlib.parser
-import numpy
-import json
-import pycoq.log
-import pytest
 import logging
-
 import os
-
-
+import json
 import pkg_resources
+
+import numpy
+import pytest
+
+import pycoq.log
+
+
+import serlib.parser
+
 
 def with_prefix(s: str) -> str:
     ''' adds package path as prefix '''
@@ -41,7 +43,7 @@ def test_hash_bytestring4():
 def test_sexpparser_parse_string0():
     ''' tests parsing single bytestring into postfix '''
     parser = serlib.parser.SExpParser()
-    res = parser.parse_string('((a b c)d(a b c)(e f) g)')
+    res = parser.postfix_of_sexp('((a b c)d(a b c)(e f) g)')
     ans = numpy.array([1,2,3,-3,4,1,2,3,-3,5,6,-2,7,-5],
                       dtype=numpy.intc)
     assert all(res == ans)
@@ -51,7 +53,7 @@ def test_sexpparser_parse_string0():
 def test_sexpparser_parse_string1():
     ''' tests parsing two sequential bytestrings into postfix '''
     parser = serlib.parser.SExpParser()
-    res0 = parser.parse_string('((a b c)d(a b c)(e f) g)')
+    res0 = parser.postfix_of_sexp('((a b c)d(a b c)(e f) g)')
     ans0 = numpy.array([1,2,3,-3,4,1,2,3,-3,5,6,-2,7,-5],
                       dtype=numpy.intc)
     ans0_ann = serlib.cparser.annotate(ans0)
@@ -62,11 +64,11 @@ def test_sexpparser_parse_string1():
 
 def test_sexpparser_parse_string2():
     parser = serlib.parser.SExpParser()
-    res0 = parser.parse_string('((a b c)d(a b c)(e f) g)')
+    res0 = parser.postfix_of_sexp('((a b c)d(a b c)(e f) g)')
     ans0 = numpy.array([1,2,3,-3,4,1,2,3,-3,5,6,-2,7,-5],
                       dtype=numpy.intc)
 
-    res1 = parser.parse_string('(g g a b Ф)')
+    res1 = parser.postfix_of_sexp('(g g a b Ф)')
     ans1 = numpy.array([7,7,1,2,8,-5], dtype=numpy.intc)
 
     res2 = parser.dict
@@ -79,7 +81,7 @@ def test_sexpparser_parse_string2():
 
 def aux_serlib_parse_bytestring_new(s, address):
     sparser = serlib.parser.SExpParser()
-    res0a = sparser.parse_bytestring(s, address)
+    res0a = sparser.postfix_of_bytestring(s, address)
     res0b = sparser.parse_bytestring_new(s, address)
     pycoq.log.info(f"test {res0a} == {res0b}")
     assert all(res0a == res0b)
@@ -124,7 +126,7 @@ def test_serlib_parse_bytestring_new5():
 def test_serlib_children():
     s = b'(((a b)(c))((e f)(g h))(k l)(p q))'
     parser = serlib.parser.SExpParser()
-    res = parser.parse_bytestring(s)
+    res = parser.postfix_of_bytestring(s)
     ann = serlib.cparser.annotate(res)
     root = res.shape[0] - 1
     children = serlib.cparser.children(res, ann, root)
@@ -138,7 +140,7 @@ def test_serlib_children():
 def aux_parse_bytestring(name: str, write=False):
     s = open(with_prefix(f"serlib/{name}.in")).read().strip().encode()
     p = serlib.parser.SExpParser()
-    res = numpy.ndarray.tolist(p.parse_bytestring(s))
+    res = numpy.ndarray.tolist(p.postfix_of_bytestring(s))
     if write:
         json.dump(res, open(with_prefix(f"serlib/{name}.out"), 'w'))
     else:
@@ -151,7 +153,7 @@ def test_parse_bytestring():
 def test_parse_inverse2():
     s = open(with_prefix(f"serlib/input2.in")).read()
     p = serlib.parser.SExpParser()
-    r = p.parse_string(s)
+    r = p.postfix_of_sexp(s)
     sprime = p.to_sexp(r)
     sn = numpy.array(list(s))
     sprimen = numpy.array(list(sprime))

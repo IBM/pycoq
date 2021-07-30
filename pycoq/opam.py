@@ -524,8 +524,7 @@ async def opam_coq_serapi_query_goals(coq_ctxt: pycoq.common.CoqContext,
                                       coq_serapi=COQ_SERAPI,
                                       coq_serapi_pin=COQ_SERAPI_PIN,
                                       compiler=DEFAULT_OCAML,
-                                      debug=False,
-                                      compare_with_legacy=True) -> List[Tuple[str]]:
+                                      debug=False) -> List[Tuple[str]]:
     '''
     returns SerapiGoals object
     after each execution of Coq Command
@@ -548,15 +547,10 @@ async def opam_coq_serapi_query_goals(coq_ctxt: pycoq.common.CoqContext,
 
             _serapi_goals = await coq.query_goals_completed()
             
-            post_fix = par.parse_string(_serapi_goals)
+            post_fix = par.postfix_of_sexp(_serapi_goals)
             ann = serlib.cparser.annotate(post_fix)
-            if compare_with_legacy:
-                serapi_goals = pycoq.query_goals.parse_serapi_goals(par, post_fix, ann, str)
-                serapi_goals_legacy = pycoq.query_goals_legacy.parse_serapi_goals(_serapi_goals)
-                if f"{serapi_goals}" != f"{serapi_goals_legacy}":
-                    log_query_goals_error(_serapi_goals, serapi_goals, serapi_goals_legacy)
-            else:
-                serapi_goals = pycoq.query_goals.parse_serapi_goals(par, post_fix, ann, int)
+
+            serapi_goals = pycoq.query_goals.parse_serapi_goals(par, post_fix, ann, str)
             
             res.append((stmt, _serapi_goals, serapi_goals))
     return res

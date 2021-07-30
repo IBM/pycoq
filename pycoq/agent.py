@@ -90,7 +90,7 @@ async def evaluate_agent(cfg: pycoq.common.LocalKernelConfig, agent, prop: str, 
             
 async def get_goals_stack(coq, parser):
     goals = await coq.query_goals_completed()
-    goals_stack = parser.parse_string(goals,[1,0,1,0,1])
+    goals_stack = parser.postfix_of_sexp(goals,[1,0,1,0,1])
     if len(goals_stack) == 0:
         raise RuntimeError("Error: bad environment response on the agent side"
                            "The goals object is not returned from serapi query goals")
