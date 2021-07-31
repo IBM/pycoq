@@ -15,13 +15,11 @@ import pycoq.trace
 import pycoq.log
 import pycoq.split
 import pycoq.serapi
-import pycoq.query_goals_legacy
 import pycoq.query_goals
 
 
-
-
 import serlib.parser
+
 
 # refactor globals below to be loaded from a default config
 # see e.g. https://tech.preferred.jp/en/blog/working-with-configuration-in-python/
@@ -550,7 +548,7 @@ async def opam_coq_serapi_query_goals(coq_ctxt: pycoq.common.CoqContext,
             post_fix = par.postfix_of_sexp(_serapi_goals)
             ann = serlib.cparser.annotate(post_fix)
 
-            serapi_goals = pycoq.query_goals.parse_serapi_goals(par, post_fix, ann, str)
+            serapi_goals = pycoq.query_goals.parse_serapi_goals(par, post_fix, ann, pycoq.query_goals.SExpr)
             
             res.append((stmt, _serapi_goals, serapi_goals))
     return res

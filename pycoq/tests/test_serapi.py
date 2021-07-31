@@ -9,7 +9,6 @@ import pycoq.opam
 import pycoq.config
 import pycoq.log
 import pycoq.query_goals
-# import pycoq.query_goals_legacy
 
 
 import pkg_resources

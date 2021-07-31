@@ -1,16 +1,38 @@
 ''' helper functions to parse return of coq-serapi Query () Goals '''
 
-import numpy
+import numpy as np
 
 from dataclasses_json import dataclass_json
 from dataclasses import dataclass
 from typing import List, Tuple, Optional
 
+
 import serlib.parser
 
-Constr = str
-Info = str
-Name = str
+
+
+@dataclass
+class SExpr:
+    post_fix: np.array
+    ann: np.array
+    par: serlib.parser.SExpParser
+    root: int
+
+    def children(self):
+        for child in serlib.cparser.children(self.post_fix, self.ann, self.root):
+            yield SExpr(self.post_fix, self.ann, self.par, child)
+
+    
+    def __repr__(self):
+        return (repr(list(self.children())) if (self.post_fix[self.root] <= 0) else
+                self.par.inv_dict[self.post_fix[self.root]].decode())
+
+    
+    
+
+Constr = SExpr
+Info = SExpr
+Name = SExpr
 
 @dataclass_json
 @dataclass
@@ -53,8 +75,15 @@ def srepr(par: serlib.parser.SExpParser, post_fix, ann, root, output) -> str:
     elif output == int:
         if isinstance(root, int):
             return root
-        elif isinstance(root, numpy.int32):
+        elif isinstance(root, np.int32):
             return root.item()
+        else:
+            raise ValueError(f"Root type of {root} is not int nor numpy.int32 for compressed int repr")
+    else:
+        return SExpr(post_fix, ann, par, root)
+        
+
+
 
 
 def parse_ids(par, post_fix, ann, root, output) -> List[Name]:
@@ -140,8 +169,8 @@ def parse_stack(par, post_fix, ann, root, output) -> List[Tuple[List[RGoal], Lis
 
 
 def parse_serapi_goals(par: serlib.parser.SExpParser,
-                       post_fix: numpy.ndarray,
-                       ann: numpy.ndarray,
+                       post_fix: np.ndarray,
+                       ann: np.ndarray,
                        output: type) -> SerapiGoals:
     '''
 

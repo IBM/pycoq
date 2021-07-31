@@ -3,7 +3,6 @@ import os
 
 import pycoq.opam
 import pycoq.query_goals
-import pycoq.query_goals_legacy
 import serlib.parser
 import json
 import pycoq.log
@@ -15,20 +14,6 @@ def with_prefix(s: str) -> str:
     ''' adds package path as prefix '''
     return os.path.join(pkg_resources.resource_filename('pycoq', 'tests'), s)
 
-
-def aux_query_goals_legacy(name: str, write=False):
-    '''
-    tests pycoq.query_goals.parse_serapi_goals(s: str)
-    '''
-    with open(with_prefix(f"query_goals/{name}.in")) as f:
-        s = f.read().strip()
-        res = pycoq.query_goals_legacy.parse_serapi_goals(s).to_json()
-    
-    if write:
-        with open(with_prefix(f"query_goals/{name}_str.out"), 'w') as f:
-            f.write(res)
-    else:
-        assert json.loads(res) == json.load(open(with_prefix(f"query_goals/{name}_str.out")))
 
 def aux_query_goals(name: str, output, write=False):
     '''
@@ -54,9 +39,6 @@ def test_serapi_installed():
     ''' tests if coq-serapi installation is OK, installs if missing '''
     assert pycoq.opam.opam_install_serapi()
 
-
-def test_query_goals_legacy():
-    aux_query_goals_legacy("input1")
 
 def test_query_goals_str():
     aux_query_goals("input1", str)
