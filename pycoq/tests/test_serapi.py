@@ -9,7 +9,7 @@ import pycoq.opam
 import pycoq.config
 import pycoq.log
 import pycoq.query_goals
-
+import sys
 
 import pkg_resources
 
@@ -56,6 +56,8 @@ def aux_query_goals(coq_package: str, coq_package_pin=None, write=False):
 
 
 def aux_lf_query_goals(write=False):
+    sys.setrecursionlimit(10000)
+    print("recursion limit", sys.getrecursionlimit())
     aux_query_goals("lf", f"file://{with_prefix('lf')}", write=write)
 
 
