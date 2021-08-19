@@ -76,6 +76,7 @@ def opam_init_root() -> bool:
         return False
 
     command = (['opam', 'init']
+               + ['--disable-sandboxing']
                + root_option()
                + ['--bare', '-n'])
                
