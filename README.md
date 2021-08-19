@@ -28,8 +28,8 @@ conda create -n pycoq python=3.8
 conda activate pycoq
 ```
 
-### Provide opam of version >= 2.0.5
-We assume that opam of version >= 2.0.5 is available in the shell environment. On Ubuntu 20.04 you can install opam with
+### Provide opam of version 2.*
+We assume that opam of version = 2.* is available in the shell environment. On Ubuntu 20.04 you can install opam with
 ```
 apt-get install opam
 ```

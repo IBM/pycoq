@@ -24,7 +24,7 @@ import serlib.parser
 # refactor globals below to be loaded from a default config
 # see e.g. https://tech.preferred.jp/en/blog/working-with-configuration-in-python/
 
-MIN_OPAM_VERSION = "2.0.0"
+MIN_OPAM_VERSION = "2."
 DEFAULT_OCAML = "ocaml-variants.4.07.1+flambda"
 COQ_REPO = "coq-released"
 COQ_REPO_SOURCE = "https://coq.inria.fr/opam/released"
@@ -60,10 +60,10 @@ def opam_check() -> bool:
     ''' checks if opam version is at least MIN_OPAM_VERSION '''
     version = opam_version()
     pycoq.log.info(f"checked opam_version={version}")
-    return opam_version and (
-            pkg_resources.parse_version(version) >=
-            pkg_resources.parse_version(MIN_OPAM_VERSION))
-
+    return version and version.startswith(MIN_OPAM_VERSION)
+    # it would be nicer to use
+    # pkg_resources.parse_version(version) >= pkg_resources.parse_version(MIN_OPAM_VERSION)
+    # but ^^^ breaks for ~rc versions of opam
 
 def root_option() -> List[str]:
     ''' constructs root option arg to call opam '''
