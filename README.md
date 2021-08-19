@@ -52,7 +52,7 @@ make setup-pycoq-dev
 
 ### Run tests
 ```
-cd tests
+cd pycoq/tests
 pytest
 ```
 
