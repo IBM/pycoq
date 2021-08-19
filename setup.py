@@ -26,6 +26,7 @@ Operating System :: POSIX :: Linux
 serlib_cparser = setuptools.Extension('serlib.cparser',
                             sources=['serlib/cparser.cpp'],
                             include_dirs=[numpy.get_include()],
+                            extra_compile_args = ["-std=c++14"],
 #                            extra_compile_args = ["-O0",
 #                                                  "-fsanitize=address"],
 #                            extra_link_args = ["-fsanitize=address",
