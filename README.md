@@ -69,6 +69,13 @@ In the default configuration pycoq uses directory `$HOME/.local/share/pycoq` to 
 rm -fr $HOME/.local/share/pycoq
 ```
 
+### Docker test
+Install docker and from pycoq run 
+```
+docker build -t pycoq:test .
+```
+to verify the setup and test of pycoq in docker container on linux
+
 
 
 
