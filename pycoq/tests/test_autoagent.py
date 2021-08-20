@@ -15,6 +15,7 @@ def test_serapi_installed():
     ''' tests if coq-serapi installation is OK, installs if missing '''
     assert pycoq.opam.opam_install_serapi()
 
+
 def test_autoagent3():
     ''' tests autoegent at depth 3 '''
     coq_ctxt = pycoq.common.CoqContext(pwd=os.getcwd(), executable='', target='serapi_shell')

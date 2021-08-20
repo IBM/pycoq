@@ -6,6 +6,8 @@ from typing import Union
 from pycoq.common import LocalKernelConfig, RemoteKernelConfig
 from pycoq.common import TIMEOUT_TERMINATE
 
+import pycoq.log
+
 KernelConfig = Union[LocalKernelConfig, RemoteKernelConfig]
 
 PIPE_BUFFER_LIMIT = 2048*1024*1024  # 2048 Mb
@@ -67,9 +69,9 @@ class LocalKernel():
         self._reader = self._proc.stdout
         self._reader_err = self._proc.stderr
         self._writer = self._proc.stdin
-        print(f"process with {self._proc.pid} started as")
-        print("cmd: ", cmd)
-        print("cwd ", cwd)
+        pycoq.log.info(f"process with {self._proc.pid} started as")
+        pycoq.log.info(f"cmd: {cmd}")
+        pycoq.log.info(f"cwd: {cwd}")
 
 
     async def __aenter__(self):

@@ -5,13 +5,14 @@ functions to work with coq-serapi
 import re
 import json
 import time
-import asyncio
-import numbers
 
 
 from typing import List, Union, Tuple
-import pycoq.kernel
 
+import serlib.parser
+
+
+import pycoq.kernel
 
 from dataclasses import dataclass
 from collections.abc import Iterable
@@ -127,6 +128,7 @@ class CoqSerapi():
         self._serapi_response_history = []
         self._added_sids = []
         self._executed_sids = []
+        self.parser = serlib.parser.SExpParser()
 
     async def start(self):
         """ starts new kernel if not already connected

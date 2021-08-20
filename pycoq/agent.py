@@ -1,7 +1,9 @@
 import pycoq.serapi
+import pycoq.log
+
 from serlib.parser import SExpParser
 
-from typing import Iterable
+from typing import Iterable, List, Tuple
 
 DEBUG = True
 
@@ -88,7 +90,8 @@ async def evaluate_agent(cfg: pycoq.common.LocalKernelConfig, agent, prop: str, 
         
         
             
-async def get_goals_stack(coq, parser):
+async def get_goals_stack(coq):
+    parser = coq.parser
     goals = await coq.query_goals_completed()
     goals_stack = parser.postfix_of_sexp(goals,[1,0,1,0,1])
     if len(goals_stack) == 0:
@@ -119,7 +122,7 @@ async def auto_agent(coq: pycoq.serapi.CoqSerapi, auto_limit: int):
 
     cnt = 0
     
-    goals_stack = await get_goals_stack(coq, parser)
+    goals_stack = await get_goals_stack(coq)
         
     while time_space_bounds_ok(cnt, auto_limit):
         debug(f"agent: have {-goals_stack[-1]} goals to solve")
@@ -131,7 +134,7 @@ async def auto_agent(coq: pycoq.serapi.CoqSerapi, auto_limit: int):
         result = await coq.execute(f"auto {cnt}.")
         debug(f"agent: auto {cnt} tactic is completed with result", result)
 
-        goals_stack = await get_goals_stack(coq, parser)   #prepare the goals stack for the next round 
+        goals_stack = await get_goals_stack(coq)   #prepare the goals stack for the next round 
         if (goals_stack[-1] == 0):
             debug(f"agent: Success, all goals are solved with auto {cnt}.")
             return cnt
@@ -140,3 +143,39 @@ async def auto_agent(coq: pycoq.serapi.CoqSerapi, auto_limit: int):
     debug("agent: Failure, time space bounds exceeded")
     return -1
             
+async def deterministic_agent(coq: pycoq.serapi.CoqSerapi, proof_script: List[str]) -> Tuple[int, int]:
+    """
+    deterministic agent that executes a given proof_script in open session coq
+    returns (n_steps, n_goals) where
+    n_steps is the number of steps successfully executed
+    n_goals is the number of goals left after execution of n_steps
+    """
+
+    goals_stack = await get_goals_stack(coq)
+
+    pycoq.log.debug(f"deterministic_agent has {-goals_stack[-1]} goals to solve")
+
+    n_steps = 0
+    for stmt in proof_script:
+        _, _, coq_exc, _ = await coq.execute(stmt)
+
+        if coq_exc:
+            pycoq.log.info(f"evaluation of {stmt} in coq-serapi session raised exception {coq_exc}")
+            break
+
+        n_steps += 1
+        goals_stack = await get_goals_stack(coq)
+
+        if (goals_stack[-1] == 0):
+            break
+
+    # finalize
+
+    stmt = "Qed." if goals_stack[-1] == 0 else "Abort."
+    _, _, coq_exc, _ = await coq.execute(stmt)
+    if coq_exc:
+        pycoq.log.info(f"evaluation of {stmt} in coq-serapi session raised exception {coq_exc}")
+            
+    return (n_steps, -goals_stack[-1])
+
+
