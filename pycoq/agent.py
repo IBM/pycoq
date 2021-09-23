@@ -62,7 +62,7 @@ async def evaluate_agent_in_session(coq: pycoq.serapi.CoqSerapi, agent, prop: st
                 
                 
     
-async def evaluate_agent(cfg: pycoq.common.LocalKernelConfig, agent, prop: str, agent_parameters = {}, logfname=None):
+async def evaluate_agent(cfg: pycoq.common.LocalKernelConfig, agent, prop: str, name: str, agent_parameters = {}, logfname=None):
     """
     input: 
     prop: proposition statement in coq - gallina grammar on a single line"
@@ -72,21 +72,29 @@ async def evaluate_agent(cfg: pycoq.common.LocalKernelConfig, agent, prop: str, 
     calls agent and pass env to the agent
     awaits when agent returns the env
     
-    returns (error_code, time_to_prove)
-    #  (0,  time_to_prove)     success returned in  time_to_prove
-    #  (-1, time_to_prove)     failure returned in  time_to_prove
-    #  (-2, coq_error_message) agent was not called because coq did not parse the theorem statement
+    returns (error_code, definition)
+    #  (0,  definition) success returned 
+    #  (-1, None)       failure returned
+    #  (-2, None) agent was not called because coq did not parse the theorem statement
     """
-    
+
     async with pycoq.serapi.CoqSerapi(cfg, logfname=logfname) as coq:
         result = await coq.execute(prop)
         if len(result[2]) > 0:
             debug("evaluate_agent: Error in proposition")
             debug(result[2])
-            return -2
+            return (-2, None)
         else:
             result = await agent(coq, **agent_parameters)
-            return result
+            if result < 0:
+                return (result, None)
+            definition = await coq.query_definition_completed(name)
+            return (result, definition)
+
+
+            
+        
+        
         
         
             
@@ -137,6 +145,9 @@ async def auto_agent(coq: pycoq.serapi.CoqSerapi, auto_limit: int):
         goals_stack = await get_goals_stack(coq)   #prepare the goals stack for the next round 
         if (goals_stack[-1] == 0):
             debug(f"agent: Success, all goals are solved with auto {cnt}.")
+            _, _, coq_exc, _ = await coq.execute("Qed.")
+            if coq_exc:
+                pycoq.log.info(f"evaluation of Qed. in coq-serapi session raised exception {coq_exc}")
             return cnt
         cnt += 1
             

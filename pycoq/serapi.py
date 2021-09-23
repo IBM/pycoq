@@ -2,6 +2,13 @@
 functions to work with coq-serapi
 '''
 
+
+# TODO: replace print with logging 
+
+# TODO: in wait for answer completed if received 
+# (Of_sexp_error"sertop/sertop_ser.ml.cmd_of_sexp: sum tag \"Query\" has incorrect number of arguments"(invalid_sexp(Query((pp((pp_format PpCoq))))Definition th13)))
+# then stop waiting and return error 
+
 import re
 import json
 import time
@@ -175,6 +182,18 @@ class CoqSerapi():
         self._sent_history.append(cmd)
         return cmd_tag 
     
+    async def query_definition(self, name) -> str:
+        """ 
+        sends serapi command
+        (Query () Definition name)
+        """
+        cmd_tag = len(self._sent_history)
+        cmd = f'(Query () (Definition {name}))'
+        await self._kernel.writeline(cmd)
+        self._sent_history.append(cmd)
+        return cmd_tag
+    
+    
 
 
     async def exec(self, sid: int):
@@ -266,10 +285,25 @@ class CoqSerapi():
         goals = await self._answer(cmd_tag)
         return goals
     
+    async def _query_definition_completed(self, name) -> List[str]:
+        """
+        returns literal serapi response (Query () Definition name)
+        """
+        cmd_tag = await self.query_definition(name)
+        resp_ind = await self.wait_for_answer_completed(cmd_tag)
+        coqexns = await self.coqexns(cmd_tag)
+        if coqexns != []:
+            raise RuntimeError(f'Unexpected error during coq-serapi command Query () Definition {name}'
+                               f'with CoqExns {coqexns}')
+        definition = await self._answer(cmd_tag)
+        return definition
+    
+            
+    
     
     async def query_goals_completed(self) -> str:
         """
-        returns single serapi response on (Query () Goals)
+        returns a single serapi response on (Query () Goals)
         """
         
         serapi_goals = await self._query_goals_completed()
@@ -277,11 +311,22 @@ class CoqSerapi():
         if len(serapi_goals) != 1:
             print("pycoq received list of goals", serapi_goals)
             raise RuntimError("unexpected behaviour of pycoq - serapi - coq API: "
-                              "query goals returned a non-unique serapi response")
+                              "query goals returned a list of len != 1 in serapi response")
         else:
             return serapi_goals[0]
 
-
+    async def query_definition_completed(self, name) -> str:
+        """
+        returns a single serapi response on (Query () Definition name))
+        """
+        definition = await self._query_definition_completed(name)
+        
+        if len(definition) != 1:
+            print("pycoq received definition", definition)
+            raise RuntimeError("unexpected behaviour of pycoq - serapi - coq API: "
+                               "definition returned a list of len != 1 in serapi response")
+        else:
+            return definition[0]
 
     async def execute(self, coq_stmt: str) -> List[CoqExn]:
         """ tries to execute coq_stmt
