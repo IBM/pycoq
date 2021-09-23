@@ -27,6 +27,8 @@ class SExpr:
         return (repr(list(self.children())) if (self.post_fix[self.root] <= 0) else
                 self.par.inv_dict[self.post_fix[self.root]].decode())
 
+    def is_leaf(self):
+        return self.post_fix[self.root] > 0
     
     
 

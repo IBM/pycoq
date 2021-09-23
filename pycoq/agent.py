@@ -1,6 +1,8 @@
 import pycoq.serapi
 import pycoq.log
 
+import serlib.parser
+
 from serlib.parser import SExpParser
 
 from typing import Iterable, List, Tuple
@@ -38,7 +40,7 @@ async def evaluate_agent_on_stream(cfg: pycoq.common.LocalKernelConfig, agent, p
                 yield (prop, agent_result)    
 
                 
-async def evaluate_agent_in_session(coq: pycoq.serapi.CoqSerapi, agent, prop: str, agent_parameters = {}):
+async def evaluate_agent_in_session(coq: pycoq.serapi.CoqSerapi, par, agent, prop: str, agent_parameters = {}):
 
     result = await coq.execute(prop)
     last_sids = result[3]
@@ -154,7 +156,7 @@ async def auto_agent(coq: pycoq.serapi.CoqSerapi, auto_limit: int):
     debug("agent: Failure, time space bounds exceeded")
     return -1
             
-async def deterministic_agent(coq: pycoq.serapi.CoqSerapi, proof_script: List[str]) -> Tuple[int, int]:
+async def deterministic_agent(coq: pycoq.serapi.CoqSerapi, proof_script: List[str], par) -> Tuple[int, int]:
     """
     deterministic agent that executes a given proof_script in open session coq
     returns (n_steps, n_goals) where
@@ -166,18 +168,33 @@ async def deterministic_agent(coq: pycoq.serapi.CoqSerapi, proof_script: List[st
 
     pycoq.log.debug(f"deterministic_agent has {-goals_stack[-1]} goals to solve")
 
+    
+    
     n_steps = 0
+    print(proof_script)
     for stmt in proof_script:
+        print("executing ", stmt)
         _, _, coq_exc, _ = await coq.execute(stmt)
 
         if coq_exc:
-            pycoq.log.info(f"evaluation of {stmt} in coq-serapi session raised exception {coq_exc}")
+            print(f"evaluation of {stmt} in coq-serapi session raised exception {coq_exc}")
             break
 
         n_steps += 1
-        goals_stack = await get_goals_stack(coq)
-
-        if (goals_stack[-1] == 0):
+        _serapi_goals = await coq.query_goals_completed()
+            
+        post_fix = par.postfix_of_sexp(_serapi_goals)
+        ann = serlib.cparser.annotate(post_fix)
+        
+        s = pycoq.query_goals.srepr(par, post_fix, ann, len(post_fix) - 1, str)
+        print(s)
+        serapi_goals = pycoq.query_goals.parse_serapi_goals(par, post_fix, ann, pycoq.query_goals.SExpr)
+            
+        
+        
+        
+        if len(serapi_goals.children()) == 0:
+            print("goals stack [-1] = 0")
             break
 
     # finalize
