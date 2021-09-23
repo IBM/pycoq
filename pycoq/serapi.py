@@ -31,7 +31,7 @@ ANSWER_PATTERN_OBJLIST = re.compile(r"\(Answer\s(\d+)(\(ObjList.*\))\)")
 ADDED_PATTERN = re.compile(r"\(Added\s(\d+)(.*)\)")
 COQEXN_PATTERN = re.compile(r"\((CoqExn\(.*\))\)")
 
-
+from pycoq.query_goals import SerapiGoals
 
 
 def ocaml_string_quote(s: str):
@@ -314,7 +314,18 @@ class CoqSerapi():
                               "query goals returned a list of len != 1 in serapi response")
         else:
             return serapi_goals[0]
-
+    
+    async def serapi_goals(self) -> SerapiGoals:
+        """
+        returns parsed SerapiGoals object
+        """
+        _serapi_goals = await self.query_goals_completed()
+        post_fix = self.parser.postfix_of_sexp(_serapi_goals)
+        ann = serlib.cparser.annotate(post_fix)
+        return pycoq.query_goals.parse_serapi_goals(self.parser, post_fix, ann, pycoq.query_goals.SExpr)
+        
+        
+        
     async def query_definition_completed(self, name) -> str:
         """
         returns a single serapi response on (Query () Definition name))

@@ -537,7 +537,7 @@ async def opam_coq_serapi_query_goals(coq_ctxt: pycoq.common.CoqContext,
 
     res = []
 
-    par = serlib.parser.SExpParser()
+    # par = serlib.parser.SExpParser()
     
     async with pycoq.serapi.CoqSerapi(cfg, logfname=logfname) as coq:
         for stmt in pycoq.split.coq_stmts_of_context(coq_ctxt):
@@ -547,10 +547,10 @@ async def opam_coq_serapi_query_goals(coq_ctxt: pycoq.common.CoqContext,
 
             _serapi_goals = await coq.query_goals_completed()
             
-            post_fix = par.postfix_of_sexp(_serapi_goals)
+            post_fix = coq.parser.postfix_of_sexp(_serapi_goals)
             ann = serlib.cparser.annotate(post_fix)
 
-            serapi_goals = pycoq.query_goals.parse_serapi_goals(par, post_fix, ann, pycoq.query_goals.SExpr)
+            serapi_goals = pycoq.query_goals.parse_serapi_goals(coq.parser, post_fix, ann, pycoq.query_goals.SExpr)
             
             res.append((stmt, _serapi_goals, serapi_goals))
     return res

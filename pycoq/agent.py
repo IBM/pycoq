@@ -22,7 +22,7 @@ async def evaluate_agent_on_stream(cfg: pycoq.common.LocalKernelConfig, agent, p
             result = await coq.execute(f"Section {section_name}.")
             last_sids = result[3]
             if (len(last_sids) != 1 or len(result[2]) > 0):
-                print("evaluate_agent_session: coq execute result is", result)
+                debug("evaluate_agent_session: coq execute result is", result)
                 raise RuntimeError("evaluate_agent_session: new section was not initialized, aborting..")
                 
             result = await coq.execute(prop)
@@ -40,22 +40,36 @@ async def evaluate_agent_on_stream(cfg: pycoq.common.LocalKernelConfig, agent, p
                 yield (prop, agent_result)    
 
                 
-async def evaluate_agent_in_session(coq: pycoq.serapi.CoqSerapi, par, agent, prop: str, agent_parameters = {}):
-
+async def evaluate_agent_in_session(coq: pycoq.serapi.CoqSerapi, agent, prop: str, name: str, agent_parameters = {}):
+    debug(prop)
     result = await coq.execute(prop)
     last_sids = result[3]
     if len(last_sids) != 1 or len(result[2]) > 0:
         debug("evaluate_agent_in_session: Error in proposition")
         debug(result[2])
-        return -2
+        return (-2, None)
     else:
         
-        agent_result = await agent(coq, **agent_parameters)
+        agent_result, extra = await agent(coq, **agent_parameters)
 
-        result = await coq.cancel_completed(last_sids)
+        if agent_result >= 0:
+            defi = await coq.query_definition_completed(name)
+        else:
+            defi = None
+        
+        _ = await coq.cancel_completed(last_sids)
+        
+        if defi is None:
+            return (agent_result, None)
+
+        post_fix = coq.parser.postfix_of_sexp(defi)
+        ann = serlib.cparser.annotate(post_fix)
+        definition = pycoq.query_goals.srepr(coq.parser, post_fix, ann, len(post_fix) - 1, pycoq.query_goals.SExpr)
+        
+        
 
         debug("evaluate_agent_session: most recent section cancelled; ready to evaluate another proposition")
-        return agent_result
+        return (agent_result, definition)
     
     
     
@@ -81,16 +95,20 @@ async def evaluate_agent(cfg: pycoq.common.LocalKernelConfig, agent, prop: str, 
     """
 
     async with pycoq.serapi.CoqSerapi(cfg, logfname=logfname) as coq:
-        result = await coq.execute(prop)
-        if len(result[2]) > 0:
+        _, _, coq_exc, _ = await coq.execute(prop)
+        if len(coq_exc) > 0:
             debug("evaluate_agent: Error in proposition")
-            debug(result[2])
+            debug(coq_exc)
             return (-2, None)
         else:
-            result = await agent(coq, **agent_parameters)
+            result, extra = await agent(coq, **agent_parameters)
             if result < 0:
                 return (result, None)
-            definition = await coq.query_definition_completed(name)
+            defi = await coq.query_definition_completed(name)
+            
+            post_fix = coq.parser.postfix_of_sexp(defi)
+            ann = serlib.cparser.annotate(post_fix)
+            definition = pycoq.query_goals.srepr(coq.parser, post_fix, ann, len(post_fix) - 1, pycoq.query_goals.SExpr)
             return (result, definition)
 
 
@@ -128,7 +146,7 @@ async def auto_agent(coq: pycoq.serapi.CoqSerapi, auto_limit: int):
     default agent that tries to solve the problem in cnt steps using the tactics auto
     on iteration i agent will execute auto i tactics
     """
-    parser = SExpParser()
+    parser = coq.parser
 
     cnt = 0
     
@@ -150,59 +168,47 @@ async def auto_agent(coq: pycoq.serapi.CoqSerapi, auto_limit: int):
             _, _, coq_exc, _ = await coq.execute("Qed.")
             if coq_exc:
                 pycoq.log.info(f"evaluation of Qed. in coq-serapi session raised exception {coq_exc}")
-            return cnt
+            return (cnt, 0)
         cnt += 1
             
     debug("agent: Failure, time space bounds exceeded")
-    return -1
+    return (-1, -goals_stack[-1])
             
-async def deterministic_agent(coq: pycoq.serapi.CoqSerapi, proof_script: List[str], par) -> Tuple[int, int]:
+async def script_agent(coq: pycoq.serapi.CoqSerapi, proof_script: List[str]) -> Tuple[int, int]:
     """
     deterministic agent that executes a given proof_script in open session coq
     returns (n_steps, n_goals) where
     n_steps is the number of steps successfully executed
     n_goals is the number of goals left after execution of n_steps
     """
-
-    goals_stack = await get_goals_stack(coq)
-
-    pycoq.log.debug(f"deterministic_agent has {-goals_stack[-1]} goals to solve")
-
-    
-    
+        
     n_steps = 0
-    print(proof_script)
+    serapi_goals = await coq.serapi_goals()
+    debug(serapi_goals)
+
     for stmt in proof_script:
-        print("executing ", stmt)
+        if serapi_goals.empty():
+            break
+        debug(f"executing: {stmt}")
         _, _, coq_exc, _ = await coq.execute(stmt)
 
         if coq_exc:
-            print(f"evaluation of {stmt} in coq-serapi session raised exception {coq_exc}")
+            debug(f"evaluation of {stmt} in coq-serapi session raised exception {coq_exc}")
             break
 
         n_steps += 1
-        _serapi_goals = await coq.query_goals_completed()
-            
-        post_fix = par.postfix_of_sexp(_serapi_goals)
-        ann = serlib.cparser.annotate(post_fix)
         
-        s = pycoq.query_goals.srepr(par, post_fix, ann, len(post_fix) - 1, str)
-
-        serapi_goals = pycoq.query_goals.parse_serapi_goals(par, post_fix, ann, pycoq.query_goals.SExpr)
+        serapi_goals = await coq.serapi_goals()
+        debug(serapi_goals)
         
-        print(serapi_goals)
-        
-        if serapi_goals.empty():
-            print("goals stack [-1] = 0")
-            break
 
     # finalize
 
-    stmt = "Qed." if goals_stack[-1] == 0 else "Abort."
+    stmt = "Qed." if serapi_goals.empty() else "Abort."
     _, _, coq_exc, _ = await coq.execute(stmt)
     if coq_exc:
         pycoq.log.info(f"evaluation of {stmt} in coq-serapi session raised exception {coq_exc}")
             
-    return (n_steps, -goals_stack[-1])
+    return (n_steps, len(serapi_goals.goals))
 
 
