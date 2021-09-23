@@ -187,13 +187,12 @@ async def deterministic_agent(coq: pycoq.serapi.CoqSerapi, proof_script: List[st
         ann = serlib.cparser.annotate(post_fix)
         
         s = pycoq.query_goals.srepr(par, post_fix, ann, len(post_fix) - 1, str)
-        print(s)
+
         serapi_goals = pycoq.query_goals.parse_serapi_goals(par, post_fix, ann, pycoq.query_goals.SExpr)
-            
         
+        print(serapi_goals)
         
-        
-        if len(serapi_goals.children()) == 0:
+        if serapi_goals.empty():
             print("goals stack [-1] = 0")
             break
 

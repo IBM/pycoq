@@ -21,10 +21,11 @@ def test_autoagent3():
     coq_ctxt = pycoq.common.CoqContext(pwd=os.getcwd(), executable='', target='serapi_shell')
     cfg = pycoq.opam.opam_serapi_cfg(coq_ctxt)
 
-    res = asyncio.run(
+    res, defi = asyncio.run(
         pycoq.agent.evaluate_agent(
             cfg, pycoq.agent.auto_agent,
             "Theorem th_4_2_9: forall A B C D: Prop, A->(A->B)->(B->C)->(C->D)->D.",
+            "th_4_2_9",
             agent_parameters={'auto_limit':3},
             logfname = with_prefix('autoagent/agent3.log')))
                       
@@ -38,8 +39,9 @@ def test_autoagent10():
     coq_ctxt = pycoq.common.CoqContext(pwd=os.getcwd(), executable='', target='serapi_shell')
     cfg = pycoq.opam.opam_serapi_cfg(coq_ctxt)
 
-    res = asyncio.run(pycoq.agent.evaluate_agent(cfg, pycoq.agent.auto_agent,
+    res, defi = asyncio.run(pycoq.agent.evaluate_agent(cfg, pycoq.agent.auto_agent,
                      "Theorem th_4_2_9: forall A B C D: Prop, A->(A->B)->(B->C)->(C->D)->D.", 
+                                                 "th_4_2_9",
                                                  agent_parameters={'auto_limit':5},
                       logfname=with_prefix('autoagent/agent10.log')))
 
@@ -50,10 +52,11 @@ def test_autoagent_error_0():
     coq_ctxt = pycoq.common.CoqContext(pwd=os.getcwd(), executable='', target='serapi_shell')
     cfg = pycoq.opam.opam_serapi_cfg(coq_ctxt)
 
-    res = asyncio.run(
+    res, defi = asyncio.run(
         pycoq.agent.evaluate_agent(
             cfg, pycoq.agent.auto_agent,
             "Theorem th_4_2_9: forall A B C D: Prop, A->(A->B)->(B->C)->(C->D)->F.", 
+            "th_4_2_9",
                      agent_parameters={'auto_limit':10},
             logfname=with_prefix('autoagent/agent0.log')))
             
@@ -67,10 +70,11 @@ def test_autoagent_error_1():
     input_line = (r"messed up input very bad239 235()*&*(^%(^PU afds ;Y a\sf\\a\sd\f asdf\\ )) "
                   r"should not crash but return -2")
 
-    res = asyncio.run(
+    res, defi = asyncio.run(
         pycoq.agent.evaluate_agent(
             cfg, pycoq.agent.auto_agent,
             input_line,
+            "",
                      agent_parameters={'auto_limit':10},
             logfname=with_prefix('autoagent/agent1.log')))
             

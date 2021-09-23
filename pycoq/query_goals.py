@@ -65,6 +65,10 @@ class SerapiGoals:
     shelf: List[RGoal]
     given_up: List[RGoal]
     bullet: Optional[str]
+    
+    def empty(self) -> bool:
+        return len(self.goals) == 0 and len(self.stack) == 0 and len(self.shelf) == 0
+        
 
 
 def srepr(par: serlib.parser.SExpParser, post_fix, ann, root, output) -> str:
@@ -178,8 +182,8 @@ def parse_serapi_goals(par: serlib.parser.SExpParser,
 
     parses the return of coq-serapi command Query () Goals
     according to the specification in 
-    coq-serapi/serapi_protocol.ml
-    coq-serapi/serlib/ser_goals.ml
+    https://github.com/ejgallego/coq-serapi/blob/v8.13/serapi/serapi_protocol.ml
+    https://github.com/ejgallego/coq-serapi/blob/v8.13/serapi/serapi_goals.ml
 
 
     Query () Goals returns [CoqGoal g]

@@ -30,7 +30,8 @@ COQ_REPO = "coq-released"
 COQ_REPO_SOURCE = "https://coq.inria.fr/opam/released"
 SWITCH_INSTALLED_ERROR = "[ERROR] There already is an installed switch named"
 COQ_SERAPI = "coq-serapi"
-COQ_SERAPI_PIN = "8.13.0+0.13.0"
+#COQ_SERAPI_PIN = "8.13.0+0.13.0"
+COQ_SERAPI_PIN = "8.11.0+0.11.1"
 COQ_EXTRA_WARNING = ['-w', '-projection-no-head-constant',
              '-w', '-redundant-canonical-projection',
              '-w', '-notation-overridden',
