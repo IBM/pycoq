@@ -2,6 +2,8 @@ import os
 import setuptools
 import numpy
 
+from setuptools import find_packages
+
 here = os.path.abspath(os.path.dirname(__file__))
 
 with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
@@ -27,10 +29,6 @@ serlib_cparser = setuptools.Extension('serlib.cparser',
                             sources=['serlib/cparser.cpp'],
                             include_dirs=[numpy.get_include()],
                             extra_compile_args = ["-std=c++14"],
-#                            extra_compile_args = ["-O0",
-#                                                  "-fsanitize=address"],
-#                            extra_link_args = ["-fsanitize=address",
-#                                               "-static-libasan"]
                             )
     
 setuptools.setup(
@@ -44,6 +42,12 @@ setuptools.setup(
     long_description_content_type='text/markdown',
     url='https://github.com/pestun/pycoq',
     python_requires='>=3.8',
+    include_package_data=True,
+    package_data={'pycoq': ['test/*',
+                            'test/autoagent/*',
+                            'test/lf/*',
+                            'test/query_goals/*',
+                            'test/serlib/*']},
     install_requires=['lark-parser',
                       'pylint',
                       'pathos',
@@ -55,9 +59,11 @@ setuptools.setup(
                       'aiofile',
                       'pytest',
                       'pytest-benchmark',
-                      'strace-parser @ git+https://github.com/pestun/strace-parser.git@c3f0d87',
-                      'dataclasses-json'],
-    entry_points={'console_scripts': ['pycoq-trace=pycoq.pycoq_trace:main']},
+                      'strace-parser',
+#                      'strace-parser @ git+https://github.com/pestun/strace-parser.git@c3f0d87',
+                      'dataclasses-json',
+                      'numpy'],
+        entry_points={'console_scripts': ['pycoq-trace=pycoq.pycoq_trace:main']},
     project_urls={
         'Source': 'https://github.com/pestun/pycoq'
     },

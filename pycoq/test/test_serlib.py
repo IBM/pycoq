@@ -19,7 +19,7 @@ import serlib.parser
 
 def with_prefix(s: str) -> str:
     ''' adds package path as prefix '''
-    return os.path.join(pkg_resources.resource_filename('pycoq', 'tests'), s)
+    return os.path.join(pkg_resources.resource_filename('pycoq', 'test'), s)
 
 
 def test_hash_bytestring0():

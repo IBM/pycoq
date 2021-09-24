@@ -1,5 +1,4 @@
 pycoq.egg-info/
 pycoq/__pycache__/
-strace-parser/
 tests/data/
 venv/

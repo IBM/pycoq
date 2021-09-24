@@ -1,0 +1,3 @@
+[submodule "strace-parser"]
+	path = strace-parser
+	url = https://github.com/pestun/strace-parser
