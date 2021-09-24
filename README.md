@@ -8,82 +8,51 @@ The pip distribution package pycoq provides two python packages:
 
 ## pycoq
 
-pycoq is a python library that provides API to coq-serapi 
+`pycoq` is a python library that provides interface to Coq using the serialization coq-serapi  https://github.com/ejgallego/coq-serapi
 
-## serlib 
+## serlib
 
-serlib is a python library that exposes C++ s-expression parser
-
-See https://bagnalla.github.io/sexp-trees/ for s-expression visualisation. 
-
+`serlib` is a python library providing s-expression parser implemented in C++
 
 ## Install on Linux
 
-We provide quick instructions for installing pycoq on Linux. Other platforms are not currently supported. 
+Currently we support only the Linux platform. 
 
-### Provide python3
-We assume that python3 is available in the shell environment (the current release of pycoq is tested on python 3.8). For example, you can provide python3 using conda as follows (assuming  https://docs.conda.io/en/latest/miniconda.html#miniconda is installed)
-```
-conda create -n pycoq python=3.8
-conda activate pycoq
-```
+### External dependencies 
 
-### Provide opam of version 2.*
-We assume that opam of version = 2.* is available in the shell environment. On Ubuntu 20.04 you can install opam with
-```
-apt-get install opam
-```
-See opam install instructions https://opam.ocaml.org/doc/Install.html for other distros.
+#### opam 
+The pycoq calls `opam` package manager to install and run the coq-serapi and coq binaries.
+The pycoq assumes that `opam` binary of version 2.* is in the `$PATH`.
 
+On Ubuntu 20.04 install opam with `sudo apt-get install opam`.
+See https://opam.ocaml.org/doc/Install.html for other systems. 
 
-### Install pycoq
-To install pycoq in development mode (editable version in venv environment) under the source
-directory run
+#### strace
+The pycoq calls `strace` to inspect the building of coq-projects to prepare the context. The pycoq assumes  
+that `strace` is in the `$PATH`. 
 
-```
-make setup-pycoq-dev
-```
-
-### Activate pycoq venv
-```
-. venv/bin/activate
-```
+On Ubuntu 20.04 install strace with `sudo apt-get install strace`.
+See https://github.com/strace/strace for other systems.
 
 
-### Run tests
+
+## Test pycoq
+Check pycoq setup by running the tests in the source dir and see examples of the API
 ```
 cd pycoq/tests
 pytest
 ```
 
-
-### Deactivate
-To quit from the venv 
-```
-deactivate
-```
-
-### Uninstall 
-In the default configuration pycoq uses directory `$HOME/.local/share/pycoq` to store opam repository and other files. To remove it run
+## Uninstall pycoq 
+In the default configuration pycoq uses directory `$HOME/.local/share/pycoq` to store opam repository and the pycoq.log. 
+To remove it run
 ```
 rm -fr $HOME/.local/share/pycoq
 ```
 
-### Docker test
+## Build pycoq in Docker
 Install docker and from the directory containing Dockerfile run
 ```
 docker build -t pycoq:test .
 ```
 to verify the setup and test of pycoq in docker container on linux
-
-
-
-
-
-
-
-
-
-
-
-
