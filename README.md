@@ -35,17 +35,25 @@ On Ubuntu 20.04 install strace with `sudo apt-get install strace`.
 See https://github.com/strace/strace for other systems.
 
 
-
-## Test pycoq
-Check pycoq setup by running the tests in the source dir and see examples of the API
+### Install from github
+Assuming `python>=3.8` and `pip` are in your python environment, git clone the source repository of `pycoq` and from its root (containing `setup.py`) run
 ```
-cd pycoq/tests
-pytest
+pip install .
 ```
 
-## Uninstall pycoq 
-In the default configuration pycoq uses directory `$HOME/.local/share/pycoq` to store opam repository and the pycoq.log. 
-To remove it run
+### Test your setup
+From your python environment with `pycoq` installed run
+```
+pytest --pyargs pycoq
+```
+
+### Uninstall pycoq 
+From your python environment with `pycoq` installed run
+```
+pip uninstall pycoq
+```
+By default, pycoq uses directory `$HOME/.local/share/pycoq` to store temporary files such as the opam repository, project files and the logs.
+To remove completely run
 ```
 rm -fr $HOME/.local/share/pycoq
 ```
