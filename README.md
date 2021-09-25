@@ -36,7 +36,7 @@ See https://github.com/strace/strace for other systems.
 
 
 ### Install from github
-Assuming `python>=3.8` and `pip` are in your python environment to install from github run
+Assuming `python>=3.8` and `pip` are in your python environment (we recommend to use conda or python venv) to install from github run
 ```
 pip install git+https://github.com/IBM/pycoq
 ```
