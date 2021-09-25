@@ -24,8 +24,7 @@ RUN conda create -n pycoq python=3.9 -y
 ENV PATH="/home/bot/miniconda3/envs/pycoq/bin:${PATH}"
 
 ADD https://api.github.com/repos/IBM/pycoq/git/refs/heads/main version.json
-RUN git clone https://github.com/IBM/pycoq.git
 
+RUN python3.9 -m pip install git+https://github.com/IBM/pycoq
 
-RUN python3.9 -m pip install ./pycoq
 RUN pytest --pyargs pycoq
