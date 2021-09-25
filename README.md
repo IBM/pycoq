@@ -36,9 +36,9 @@ See https://github.com/strace/strace for other systems.
 
 
 ### Install from github
-Assuming `python>=3.8` and `pip` are in your python environment, git clone the source repository of `pycoq` and from its root (containing `setup.py`) run
+Assuming `python>=3.8` and `pip` are in your python environment to install from github run
 ```
-pip install .
+pip install git+https://github.com/IBM/pycoq
 ```
 
 ### Test your setup
