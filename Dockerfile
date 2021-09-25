@@ -7,6 +7,7 @@ RUN apt-get update \
     ssh \
     git \
     m4 \
+    libgmp-dev \
     opam \
     wget \
     ca-certificates \
