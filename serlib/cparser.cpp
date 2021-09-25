@@ -92,7 +92,6 @@ children(PyObject *self, PyObject *args) {
     npy_intp postfix_len = PyArray_SIZE(np_postfix);
 
     npy_int* ann = (npy_int*) PyArray_DATA(np_ann);
-    npy_intp ann_len = PyArray_SIZE(np_ann);
 
     if (!(node_index >= 0 && node_index < postfix_len)) {
 	PyErr_SetString(IndexError, "node index is out of bound");
