@@ -58,8 +58,8 @@ To remove completely run
 rm -fr $HOME/.local/share/pycoq
 ```
 
-### Usage of pycoq
-For basic usage see an example `tutorial/tutorial_pycoq.py` in the source repository. 
+## Using pycoq
+For basics see an example `tutorial/tutorial_pycoq.py` the test scripts in `pycoq/tests` in the source repository.
 
 ## Build pycoq in Docker
 Install docker, git clone the source repository and from the directory containing Dockerfile run
