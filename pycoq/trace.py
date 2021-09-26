@@ -6,12 +6,13 @@ import tempfile
 import re
 import ast
 
+import lark
 
 from typing import List, Dict, Optional
 
 from dataclasses import dataclass, field
 
-from strace_parser.json_transformer import to_json
+# from strace_parser.json_transformer import to_json
 from strace_parser.parser import get_parser
 
 
@@ -68,15 +69,41 @@ def simplify(d):
             return {simplify(k) : simplify(v) for k, v in d.items()}
 
 
+# def legacy_parse_strace_line(parser, line):
+#     line_tree = parser.parse(line)
+#     line_json = to_json(line_tree)
+#     assert isinstance(line_json, list)
+#     assert len(line_json) == 1
+#     d = line_json[0]
+#     if d['type'] == 'syscall' and d['name'] == 'execve':
+#         dargs = d['args']
+#         return simplify(dehex(dargs))
+
 def parse_strace_line(parser, line):
-    line_tree = parser.parse(line)
-    line_json = to_json(line_tree)
-    assert isinstance(line_json, list)
-    assert len(line_json) == 1
-    d = line_json[0]
-    if d['type'] == 'syscall' and d['name'] == 'execve':
-        dargs = d['args']
-        return simplify(dehex(dargs))
+
+    def conv(a):
+        if isinstance(a, lark.tree.Tree) and a.data == 'other':
+            return conv(a.children[0])
+        elif isinstance(a, lark.tree.Tree) and a.data == 'bracketed':
+            return [conv(c) for c in a.children[0].children]
+        elif isinstance(a, lark.tree.Tree) and a.data == 'args':
+            return [conv(c) for c in a.children]
+        elif isinstance(a, lark.lexer.Token):
+            return str(dehex(a))
+        else:
+            raise ValueError("'can't parse lark object {a}")
+
+    p = parser.parse(line)
+    if (p.data == 'start' and
+        len(p.children) == 1 and p.children[0].data == 'line'):
+            timestamp, body = p.children[0].children
+            if (len(body.children) == 1 and body.children[0].data == 'syscall'):
+                syscall = body.children[0]
+                name, args, result = syscall.children
+                name = str(name.children[0])
+                return conv(args)
+
+    raise ValueError(f"can't parse lark object {p}")
 
 
 def dict_of_list(l, split='='):
@@ -125,7 +152,7 @@ def parse_strace_logdir(logdir: str, executable: str, regex: str) -> List[str]:
     parser = get_parser()
     res = []
     for logfname_pid in os.listdir(logdir):
-        with open(os.path.join(logdir,logfname_pid),'r') as log_file:
+        with open(os.path.join(logdir,logfname_pid), 'r') as log_file:
             for line in iter(log_file.readline, ''):
                 if line.find(hex_rep(executable)) != -1:
                     pycoq.log.info(f"from {logdir} from {log_file} parsing..")

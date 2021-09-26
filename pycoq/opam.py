@@ -8,7 +8,6 @@ import subprocess
 import os
 import asyncio
 
-import pkg_resources
 import pycoq.config
 import pycoq.pycoq_trace_config
 import pycoq.trace

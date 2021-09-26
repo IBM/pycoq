@@ -47,9 +47,10 @@ setuptools.setup(
     package_data={'pycoq': ['test/*',
                             'test/autoagent/*',
                             'test/lf/*',
+                            'test/coq-bignums/*',
                             'test/query_goals/*',
-                            'test/serlib/*']
-                  },
+                            'test/serlib/*',
+                            'test/trace/*']},
     install_requires=['lark-parser',
                       'pylint',
                       'pathos',
@@ -60,7 +61,7 @@ setuptools.setup(
                       'tqdm',
                       'aiofile',
                       'pytest',
-                      'strace-parser @ git+https://github.com/chrahunt/strace-parser.git',
+                      'strace-parser',
                       'pytest-benchmark',
                       'dataclasses-json',
                       'numpy'],
@@ -71,5 +72,3 @@ setuptools.setup(
     platforms = ["Linux"],
     classifiers=[_f for _f in CLASSIFIERS.split('\n') if _f],
     )
-
-

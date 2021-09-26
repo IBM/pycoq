@@ -1,3 +1,8 @@
+"""
+pycoq methods to interact with logging module
+"""
+
+
 import logging
 
 import pycoq.config
