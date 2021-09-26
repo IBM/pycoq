@@ -23,8 +23,9 @@ DEFAULT_CONFIG = defaultdict(None,
     "log_filename" : os.path.join(os.getenv('HOME'),
                                   '.local/share/pycoq/pycoq.log')
 }
-)                             
-PYCOQ_CONFIG_FILE = os.path.join(os.getenv('HOME'), '.config', 'pycoq.json')
+)
+
+PYCOQ_CONFIG_FILE = os.path.join(os.getenv('HOME'), '.pycoq')
 
 def load_config() -> Dict:
     cfg = DEFAULT_CONFIG.copy()
@@ -32,6 +33,7 @@ def load_config() -> Dict:
         with open(PYCOQ_CONFIG_FILE) as config_file:
             cfg_from_file = json.load(config_file)
             cfg.update(cfg_from_file)
+    save_config(cfg)
     return cfg
 
 
@@ -51,7 +53,7 @@ def set_var(var: str, value):
 def get_var(var: str):
     '''gets config var or default'''
     cfg = load_config()
-    return cfg[var]
+    return cfg.get(var)
 
 def set_opam_root(s: str):
     ''' sets opam root '''
@@ -83,5 +85,8 @@ def set_log_filename(s: str):
 def log_filename():
     return os.path.expandvars(os.path.expanduser(
         get_var("log_filename")))
+
+def strace_logdir():
+    return get_var("strace_logdir")
 
 

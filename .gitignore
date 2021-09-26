@@ -1,5 +1,8 @@
+.benchmarks
 .emacs.desktop
 .ipynb_checkpoints
+.pytest_cache
+__pycache__
 pycoq.egg-info/
 pycoq/__pycache__/
 tests/data/

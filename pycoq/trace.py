@@ -89,14 +89,13 @@ def dict_of_list(l, split='='):
     return d
 
 
-def record_context(line: str, parser, regex: str):
+def record_context(line: str, parser, regex: str, source=''):
     '''
     creates and writes to a file a pycoq_context record for each
     argument matching regex in a call of executable
     '''
 
     record = parse_strace_line(parser, line)
-    pycoq.log.debug(f"record {record}")
     p_context = ProcContext(executable=record[0], args=record[1], env=dict_of_list(record[2]))
     res = []
     for target in p_context.args:
@@ -109,6 +108,7 @@ def record_context(line: str, parser, regex: str):
                                      env=p_context.env)
             target_fname = os.path.join(pwd, target)
             res.append(dump_context(context_fname(target_fname), coq_context))
+            pycoq.log.info(f"from {source} recorded context to {context_fname(target_fname)}")
     return res
 
 
@@ -124,29 +124,26 @@ def parse_strace_logdir(logdir: str, executable: str, regex: str) -> List[str]:
                    f"arguments that match {regex} in cwd {os.getcwd()}")
     parser = get_parser()
     res = []
-    lines = []
     for logfname_pid in os.listdir(logdir):
         with open(os.path.join(logdir,logfname_pid),'r') as log_file:
             for line in iter(log_file.readline, ''):
-                lines.append(line)
-    for line in lines:
-        if line.find(hex_rep(executable)) != -1:
-            pycoq.log.info(f"from {logdir} from {log_file} parsing..")
-            res += record_context(line, parser, regex)
+                if line.find(hex_rep(executable)) != -1:
+                    pycoq.log.info(f"from {logdir} from {log_file} parsing..")
+                    res += record_context(line, parser, regex, log_file)
     return res
 
 
 def strace_build(executable: str,
                  regex: str,
                  workdir: Optional[str],
-                 command: List[str]) -> List[str]:
+                 command: List[str],
+                 strace_logdir=None) -> List[str]:
 
     ''' trace calls of executable during access to  files that match regex
     in workdir while executing the command and  returns the list of pycoq_context 
     file names
     '''
-
-    with tempfile.TemporaryDirectory() as logdir:
+    def _strace_build(executable, regex, workdir, command, logdir):
         logfname = os.path.join(logdir, 'strace.log')
         pycoq.log.info(f"pycoq: tracing {executable} accesing {regex} while "
                        f"executing {command} from {workdir} with "
@@ -167,3 +164,12 @@ def strace_build(executable: str,
         pycoq.log.info('strace finished')
         return parse_strace_logdir(logdir, executable, regex)
 
+    if strace_logdir is None:
+        with tempfile.TemporaryDirectory() as _logdir:
+            return _strace_build(executable, regex, workdir, command, _logdir)
+    else:
+        os.makedirs(strace_logdir, exist_ok=True)
+        strace_logdir_cur = tempfile.mkdtemp(dir=strace_logdir)
+        return _strace_build(executable, regex, workdir, command, strace_logdir_cur)
+        
+        

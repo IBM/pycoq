@@ -359,7 +359,8 @@ def opam_strace_build(coq_package: str,
 
     pycoq.log.info(f"{executable}, {regex}, {workdir}, {command}")
 
-    return pycoq.trace.strace_build(executable, regex, workdir, command)
+    strace_logdir = pycoq.config.strace_logdir()
+    return pycoq.trace.strace_build(executable, regex, workdir, command, strace_logdir)
 
 
 def opam_strace_command(command: List[str],
