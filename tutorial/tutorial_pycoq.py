@@ -24,7 +24,7 @@ async def tutorial_deterministic_agent(theorems: Iterable):
 
     # create python coq-serapi object that wraps API of the coq-serapi  
     async with pycoq.serapi.CoqSerapi(cfg) as coq:
-        for prop, proof in theorems:
+        for prop, script in theorems:
 
             # execute proposition of the theorem
             _, _, coq_exc, _ = await coq.execute(prop)
@@ -33,9 +33,9 @@ async def tutorial_deterministic_agent(theorems: Iterable):
                 continue
 
             # execute the proof script of the theorem
-            n_steps, n_goals = await pycoq.agent.script_agent(coq, proof)
+            n_steps, n_goals = await pycoq.agent.script_agent(coq, script)
 
-            msg = f"Proof {proof} fail" if n_goals != 0 else f"Proof {proof} success"
+            msg = f"Proof {script} fail" if n_goals != 0 else f"Proof {script} success"
             print(f"{prop} ### {msg} in {n_steps} steps\n")
 
 
