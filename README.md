@@ -72,7 +72,7 @@ rm $HOME/.pycoq
 ```
 
 ## Using pycoq
-For basics see the example `tutorial/tutorial_pycoq.py` and the test scripts in `pycoq/tests`.
+For basics see the example `tutorial/tutorial_pycoq.py` and the test scripts in `pycoq/test`.
 
 ## Build pycoq in Docker
 Install docker, git clone the source repository and from the directory containing Dockerfile run
