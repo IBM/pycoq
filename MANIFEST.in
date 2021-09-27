@@ -1,0 +1,6 @@
+include LICENSE
+recursive-include pycoq/test/lf *
+recursive-include pycoq/test/query_goals *
+recursive-include pycoq/test/serlib *
+recursive-include pycoq/test/trace *
+recursive-include pycoq/test/autoagent *
