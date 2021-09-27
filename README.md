@@ -35,8 +35,14 @@ On Ubuntu 20.04 install strace with `sudo apt-get install strace`.
 See https://github.com/strace/strace for other systems.
 
 
-### Install from github
-Assuming `python>=3.8` and `pip` are in your python environment (we recommend to use conda or python venv) to install from github run
+### Install
+
+Assuming `python>=3.8` and `pip` are in your environment, to install from https://pypi.org/project/pycoq/ run
+```
+pip install pycoq
+```
+
+to install from the github source repository run 
 ```
 pip install git+https://github.com/IBM/pycoq
 ```
