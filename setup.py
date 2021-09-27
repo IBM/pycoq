@@ -33,7 +33,7 @@ serlib_cparser = setuptools.Extension('serlib.cparser',
     
 setuptools.setup(
     name='pycoq',
-    version='0.0.1a1dev1',
+    version='0.0.1a1dev2',
     author='Vasily Pestun, Fidel I. Schaposnik Massolo',
     author_email='pestun@ihes.fr',
     packages=['pycoq', 'serlib', 'pycoq.test'],
