@@ -20,7 +20,7 @@ The pip distribution package pycoq provides two python packages:
 Currently we support only the Linux platform. 
 
 ### Build tools
-We assume a standard set of building tools. For Ubuntu 20.04 you can make sure you have everything by 
+We assume a standard set of building tools. For Ubuntu 20.04 you can get them with
 ```
 apt-get update && apt-get install -y --no-install-recommends ssh git m4 libgmp-dev opam wget ca-certificates rsync strace
 ```
