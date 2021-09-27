@@ -3,6 +3,7 @@
 .ipynb_checkpoints
 .pytest_cache
 __pycache__
+dist/
 pycoq.egg-info/
 pycoq/__pycache__/
 tests/data/
