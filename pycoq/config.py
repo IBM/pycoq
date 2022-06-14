@@ -31,9 +31,11 @@ def load_config() -> Dict:
     cfg = DEFAULT_CONFIG.copy()
     if os.path.isfile(PYCOQ_CONFIG_FILE):
         with open(PYCOQ_CONFIG_FILE) as config_file:
-            cfg_from_file = json.load(config_file)
+            try:
+                cfg_from_file = json.load(config_file)
+            except json.JSONDecodeError:
+                print(f"The pycoq config file at {config_file} couldn't be parsed. Remove this config or generate approriate config")
             cfg.update(cfg_from_file)
-    save_config(cfg)
     return cfg
 
 
@@ -45,11 +47,11 @@ def save_config(cfg):
 
 def set_var(var: str, value):
     '''sets config var to value and saves config'''
-    
+
     cfg = load_config()
     cfg[var] = value
     save_config(cfg)
-    
+
 def get_var(var: str):
     '''gets config var or default'''
     cfg = load_config()
@@ -88,5 +90,3 @@ def log_filename():
 
 def strace_logdir():
     return get_var("strace_logdir")
-
-
