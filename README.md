@@ -86,4 +86,4 @@ Install docker, git clone the source repository and from the directory containin
 ```
 docker build -t pycoq:test .
 ```
-to verify the setup and test of pycoq in docker container on linux
+to verify the setup and test of pycoq in Docker container on Linux.
